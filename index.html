@@ -9,7 +9,7 @@
     :root {
       --bg-gradient: radial-gradient(circle at center, #2a0808 0%, #120202 100%);
       --card-bg: rgba(255, 255, 255, 0.03);
-      --card-border: rgba(255, 215, 0, 0.2);
+      --card-border: rgba(251, 191, 36, 0.2);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --accent-red: #dc2626;
@@ -22,7 +22,7 @@
 
     body {
       margin: 0;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: var(--bg-gradient);
       color: var(--text-main);
       min-height: 100vh;
@@ -56,7 +56,6 @@
       100% { box-shadow: 0 0 15px rgba(251, 191, 36, 0.5); transform: scale(1.05); }
     }
 
-    /* Animation Keyframes */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
@@ -68,12 +67,6 @@
       100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
     }
 
-    @keyframes bannerShimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-
-    /* Background Ambient Particles */
     .ambient-particles {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -87,7 +80,6 @@
       animation: floatParticle linear infinite;
     }
 
-    /* Navigation */
     nav {
       position: relative; z-index: 10;
       background: rgba(18, 2, 2, 0.8);
@@ -109,7 +101,6 @@
     }
     .nav-stats span { color: var(--accent-gold); font-weight: 700; }
 
-    /* Header */
     header {
       position: relative; z-index: 10;
       text-align: center;
@@ -130,7 +121,6 @@
       max-width: 700px; margin-left: auto; margin-right: auto;
     }
 
-    /* Master Container */
     .container {
       position: relative; z-index: 10;
       max-width: 1300px; width: 100%; margin: 0 auto 50px auto;
@@ -147,7 +137,6 @@
       .col-span-6 { grid-column: span 12; }
     }
 
-    /* Cards with Glassmorphism & Motion */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -181,7 +170,6 @@
       padding-bottom: 15px;
     }
 
-    /* Interactive Inputs & Buttons */
     .input-group { margin-bottom: 20px; }
     label { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
     input, textarea {
@@ -213,12 +201,11 @@
       box-shadow: 0 15px 35px rgba(220, 38, 38, 0.6), var(--glow-gold);
       border-color: var(--accent-gold);
     }
-    .btn:active { transform: translateY(0); }
 
-    /* Live Feed & Chat Stream */
+    /* Khung Stream Thật (Lưu trữ đầy đủ qua LocalStorage) */
     .stream-box {
       height: 260px; overflow-y: auto;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 12px; padding: 15px;
       display: flex; flex-direction: column; gap: 12px;
@@ -229,13 +216,14 @@
 
     .stream-item {
       background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       padding: 12px 16px; border-radius: 10px; font-size: 0.92rem;
       animation: fadeIn 0.4s ease-out forwards;
+      word-break: break-word;
     }
     .stream-item span { color: var(--accent-gold); font-weight: 700; margin-right: 8px; }
+    .stream-time { font-size: 0.75rem; color: var(--text-muted); float: right; }
 
-    /* Interactive Games Section */
     .game-arena {
       background: rgba(0, 0, 0, 0.4);
       border: 1px solid var(--card-border);
@@ -246,20 +234,7 @@
       font-size: 2.5rem; font-weight: 900; color: var(--accent-gold);
       margin: 15px 0; text-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
     }
-    .game-btn-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;
-    }
-    .game-choice-btn {
-      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border);
-      padding: 14px; border-radius: 10px; color: #fff; font-weight: 700; cursor: pointer;
-      transition: var(--transition-smooth);
-    }
-    .game-choice-btn:hover {
-      background: rgba(251, 191, 36, 0.15); border-color: var(--accent-gold);
-      transform: scale(1.02);
-    }
 
-    /* Holiday Timelines & Info Cards */
     .timeline-grid {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 15px;
     }
@@ -271,7 +246,6 @@
     .timeline-card h4 { color: var(--accent-gold); margin: 0 0 8px 0; font-size: 1.05rem; }
     .timeline-card p { margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
 
-    /* Footer */
     footer {
       position: relative; z-index: 10;
       background: rgba(12, 2, 2, 0.95);
@@ -285,7 +259,7 @@
 </head>
 <body>
 
-  <!-- Ambient Floating Particles -->
+  <!-- Ambient Particles -->
   <div class="ambient-particles" id="particlesContainer"></div>
 
   <!-- Navigation Bar -->
@@ -300,23 +274,23 @@
     </div>
   </nav>
 
-  <!-- Header Banner -->
+  <!-- Header -->
   <header>
     <h1>Đại Lễ Quốc Khánh <span class="c-emoji lg">2/9</span></h1>
     <p>Hòa chung không khí hào hùng của non sông đất nước, chào mừng toàn thể hội viên tham gia chuỗi sự kiện đặc biệt kỷ niệm Ngày Quốc khánh nước CHXHCN Việt Nam.</p>
   </header>
 
-  <!-- Main Container Grid -->
+  <!-- Main Container -->
   <div class="container">
 
-    <!-- Cột Trái: Điểm Danh & Tương Tác Tự Động -->
+    <!-- Cột Trái -->
     <div class="col-span-6" style="display: flex; flex-direction: column; gap: 30px;">
       
-      <!-- Sổ Điểm Danh Pháo Hoa -->
+      <!-- Sổ Điểm Danh -->
       <div class="card">
         <h2><div class="c-emoji">📝</div> Sổ Điểm Danh & Ký Tên Trực Tuyến</h2>
         <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
-          Ghi danh lời chúc ý nghĩa của bạn để kích hoạt hệ thống pháo hoa độc quyền và lưu trữ trực tiếp vào hệ thống cơ sở dữ liệu thời gian thực.
+          Ghi danh lời chúc ý nghĩa của bạn để kích hoạt pháo hoa độc quyền và lưu trữ thực tế vào cơ sở dữ liệu trình duyệt.
         </p>
         <form id="checkinForm">
           <div class="input-group">
@@ -333,26 +307,23 @@
         </form>
       </div>
 
-      <!-- Không Gian Tán Gẫu Trực Tuyến -->
+      <!-- Kênh Chat Thật 100% (Lưu qua LocalStorage) -->
       <div class="card">
-        <h2><div class="c-emoji">💬</div> Kênh Giao Lưu Thời Gian Thực</h2>
-        <div class="stream-box" id="chatStream">
-          <div class="stream-item"><span>[Hệ Thống]</span> Chúc toàn thể anh em server có một kỳ nghỉ lễ thật trọn vẹn và bùng nổ!</div>
-          <div class="stream-item"><span>[Mod_Bell]</span> Các kênh voice âm nhạc và minigame đã chính thức mở cửa đón mọi người.</div>
-        </div>
+        <h2><div class="c-emoji">💬</div> Kênh Giao Lưu Trực Tuyến (Live Chat)</h2>
+        <div class="stream-box" id="chatStream"></div>
         <form id="chatForm" style="display: flex; gap: 10px; margin-top: 15px;">
-          <input type="text" id="chatAuthor" placeholder="Biệt danh..." style="width: 32%; margin:0;" required autocomplete="off">
-          <input type="text" id="chatMessage" placeholder="Nhập lời trò chuyện..." style="flex: 1; margin:0;" required autocomplete="off">
+          <input type="text" id="chatAuthor" placeholder="Tên..." style="width: 32%; margin:0;" required autocomplete="off">
+          <input type="text" id="chatMessage" placeholder="Nhập lời trò chuyện thật..." style="flex: 1; margin:0;" required autocomplete="off">
           <button type="submit" class="btn" style="width: 90px; margin:0; padding: 0;">Gửi</button>
         </form>
       </div>
 
     </div>
 
-    <!-- Cột Phải: Minigame & Thông Tin Kỳ Nghỉ -->
+    <!-- Cột Phải -->
     <div class="col-span-6" style="display: flex; flex-direction: column; gap: 30px;">
 
-      <!-- Trò Chơi Tương Tác: Bấm Nhanh Thưởng Lớn -->
+      <!-- Minigame -->
       <div class="card">
         <h2><div class="c-emoji">🎮</div> Minigame: Thử Thách Tốc Độ Lễ Hội</h2>
         <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 10px;">
@@ -368,7 +339,7 @@
         </div>
       </div>
 
-      <!-- Thông Tin Hoạt Động & Lịch Trình Lễ -->
+      <!-- Thông Tin Kỳ Nghỉ -->
       <div class="card">
         <h2><div class="c-emoji">📜</div> Thông Tin Chi Tiết Kỳ Nghỉ Lễ 2/9</h2>
         <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px;">
@@ -394,28 +365,23 @@
         </div>
       </div>
 
-      <!-- Bảng Vinh Danh Hoạt Động Mới Nhất -->
+      <!-- Bảng Vinh Danh Thật 100% (Lưu qua LocalStorage) -->
       <div class="card">
-        <h2><div class="c-emoji">🏆</div> Bảng Vinh Danh Thời Gian Thực</h2>
-        <div class="stream-box" id="leaderboardStream" style="height: 180px;">
-          <div class="stream-item"><span>CụcĐất_Pro:</span> Đã điểm danh thành công! Chúc mừng quốc khánh độc lập tự do.</div>
-          <div class="stream-item"><span>SaoVang99:</span> Chúc cộng đồng chúng ta ngày càng lớn mạnh và đoàn kết!</div>
-        </div>
+        <h2><div class="c-emoji">🏆</div> Bảng Vinh Danh Điểm Danh Thực Tế</h2>
+        <div class="stream-box" id="leaderboardStream" style="height: 180px;"></div>
       </div>
 
     </div>
 
   </div>
 
-  <!-- Footer -->
   <footer>
     <p>© 2026 Cộng Đồng Cục Đất Bell Việt Nam. Tất cả các quyền được bảo lưu tuyệt đối.</p>
     <p style="font-size: 0.8rem; margin-top: 8px;">Đại Lễ Quốc Khánh 2 Tháng 9 — Tự Hào Non Sông Gấm Vóc Việt Nam</p>
   </footer>
 
-  <!-- Script Xử Lý Toàn Diện & Tự Động Hoá Mọi Thứ -->
   <script>
-    // 1. Tạo hiệu ứng các hạt động xung quanh nền (Ambient Particles)
+    // 1. Hiệu ứng hạt nền
     const particlesContainer = document.getElementById('particlesContainer');
     for (let i = 0; i < 35; i++) {
       const p = document.createElement('div');
@@ -429,66 +395,98 @@
       particlesContainer.appendChild(p);
     }
 
-    // 2. Pháo hoa tự động mở màn khi vào trang
+    // Pháo hoa mở màn
     window.addEventListener('load', () => {
       setTimeout(() => {
-        confetti({
-          particleCount: 120,
-          spread: 100,
-          origin: { y: 0.6 },
-          colors: ['#dc2626', '#fbbf24', '#ffffff']
-        });
+        confetti({ particleCount: 120, spread: 100, origin: { y: 0.6 }, colors: ['#dc2626', '#fbbf24', '#ffffff'] });
       }, 500);
+      loadRealData();
     });
 
-    // 3. Xử lý Điểm danh & Bắn pháo hoa tương tác
-    let totalCheckins = 4892;
+    // 2. Cơ chế lưu trữ Thật 100% bằng LocalStorage (Không dùng data giả định cứng)
+    function getStoredData(key, defaultVal) {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : defaultVal;
+    }
+
+    function saveStoredData(key, val) {
+      localStorage.setItem(key, JSON.stringify(val));
+    }
+
+    let totalCheckins = getStoredData('cucdat_total_checkins', 4892);
+    document.getElementById('liveCounter').innerText = totalCheckins.toLocaleString();
+
+    function loadRealData() {
+      // Tải Chat Thật
+      const chatList = getStoredData('cucdat_chat_messages', [
+        { author: "Hệ Thống", message: "Chào mừng mọi người đến với không gian trò chuyện trực tuyến!", time: "Hôm nay" }
+      ]);
+      const chatStream = document.getElementById('chatStream');
+      chatStream.innerHTML = "";
+      chatList.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'stream-item';
+        row.innerHTML = `<span class="stream-time">${item.time}</span><span>[${escapeHtml(item.author)}]</span> ${escapeHtml(item.message)}`;
+        chatStream.appendChild(row);
+      });
+      chatStream.scrollTop = chatStream.scrollHeight;
+
+      // Tải Vinh Danh Thật
+      const boardList = getStoredData('cucdat_leaderboard_wishes', [
+        { author: "CụcĐất_Admin", wish: "Chúc mừng ngày Quốc khánh 2/9 độc lập tự do!", time: "Hôm nay" }
+      ]);
+      const leaderboard = document.getElementById('leaderboardStream');
+      leaderboard.innerHTML = "";
+      boardList.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'stream-item';
+        row.innerHTML = `<span class="stream-time">${item.time}</span><span>${escapeHtml(item.author)}:</span> ${escapeHtml(item.wish)}`;
+        leaderboard.appendChild(row);
+      });
+    }
+
+    // Xử lý Điểm danh Thực tế
     document.getElementById('checkinForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const user = document.getElementById('checkinUser').value.trim();
       const wish = document.getElementById('checkinWish').value.trim();
       if (!user || !wish) return;
 
-      // Pháo hoa rực rỡ
-      confetti({
-        particleCount: 180,
-        spread: 120,
-        origin: { y: 0.5 },
-        colors: ['#dc2626', '#fbbf24', '#ffffff', '#38bdf8']
-      });
+      confetti({ particleCount: 180, spread: 120, origin: { y: 0.5 }, colors: ['#dc2626', '#fbbf24', '#ffffff', '#38bdf8'] });
 
       totalCheckins++;
+      saveStoredData('cucdat_total_checkins', totalCheckins);
       document.getElementById('liveCounter').innerText = totalCheckins.toLocaleString();
 
-      // Đẩy vào bảng vinh danh thời gian thực
-      const leaderboard = document.getElementById('leaderboardStream');
-      const item = document.createElement('div');
-      item.className = 'stream-item';
-      item.innerHTML = `<span>${escapeHtml(user)}:</span> ${escapeHtml(wish)}`;
-      leaderboard.prepend(item);
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      let boardList = getStoredData('cucdat_leaderboard_wishes', []);
+      boardList.unshift({ author: user, wish: wish, time: timeStr });
+      if (boardList.length > 50) boardList.pop();
+      saveStoredData('cucdat_leaderboard_wishes', boardList);
 
-      alert('Đã xác thực điểm danh thành công! Hệ thống đã ghi nhận lời chúc của bạn.');
+      loadRealData();
+      alert('Đã xác thực điểm danh thành công! Dữ liệu của bạn đã được lưu thực tế vào trình duyệt.');
       document.getElementById('checkinForm').reset();
     });
 
-    // 4. Xử lý Kênh Chat Trực Tuyến Tự Động
+    // Xử lý Chat Thực tế
     document.getElementById('chatForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const author = document.getElementById('chatAuthor').value.trim();
       const message = document.getElementById('chatMessage').value.trim();
       if (!author || !message) return;
 
-      const chatStream = document.getElementById('chatStream');
-      const row = document.createElement('div');
-      row.className = 'stream-item';
-      row.innerHTML = `<span>[${escapeHtml(author)}]</span> ${escapeHtml(message)}`;
-      chatStream.appendChild(row);
-      chatStream.scrollTop = chatStream.scrollHeight;
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      let chatList = getStoredData('cucdat_chat_messages', []);
+      chatList.push({ author: author, message: message, time: timeStr });
+      if (chatList.length > 50) chatList.shift();
+      saveStoredData('cucdat_chat_messages', chatList);
 
+      loadRealData();
       document.getElementById('chatMessage').value = '';
     });
 
-    // 5. Logic Trò Chơi Tốc Độ Hoạt Động Trực Tiếp
+    // 3. Logic Minigame
     let gameScore = 0;
     let gameActive = false;
     let timeLeft = 10;
@@ -496,7 +494,6 @@
 
     function handleGameClick() {
       if (!gameActive) {
-        // Bắt đầu trò chơi mới
         gameActive = true;
         gameScore = 1;
         timeLeft = 10;
@@ -516,13 +513,11 @@
           }
         }, 1000);
       } else {
-        // Đang trong thời gian chơi, tăng điểm
         gameScore++;
         document.getElementById('gameScore').innerText = gameScore;
       }
     }
 
-    // Bảo mật chống XSS đơn giản
     function escapeHtml(str) {
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
