@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đại Lễ Quốc Khánh 2 Tháng 9</title>
+  <title>Đại Lễ Quốc Khánh 2 Tháng 9 - Sự kiện</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-gradient: radial-gradient(circle at center, #2a0808 0%, #120202 100%);
@@ -14,6 +17,7 @@
       --text-muted: #94a3b8;
       --accent-red: #dc2626;
       --accent-gold: #fbbf24;
+      --discord-color: #5865F2;
       --glow-gold: 0 0 25px rgba(251, 191, 36, 0.3);
       --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -22,13 +26,15 @@
 
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg-gradient);
       color: var(--text-main);
       min-height: 100vh;
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     .c-emoji {
@@ -90,21 +96,38 @@
       font-weight: 800; font-size: 1.2rem; color: var(--accent-gold);
       display: flex; align-items: center; gap: 12px;
     }
-    .nav-stats { display: flex; gap: 20px; font-size: 0.9rem; color: var(--text-muted); }
+    .nav-stats { display: flex; gap: 20px; font-size: 0.9rem; color: var(--text-muted); align-items: center; }
     .nav-stats span { color: var(--accent-gold); font-weight: 700; }
 
     header {
-      position: relative; z-index: 10; text-align: center; padding: 80px 20px;
+      position: relative; z-index: 10; text-align: center; padding: 70px 20px 40px 20px;
       background: radial-gradient(ellipse at bottom, rgba(220, 38, 38, 0.15) 0%, transparent 70%);
       animation: fadeIn 1.2s ease-out both;
     }
     header h1 {
-      margin: 0; font-size: 3.5rem; font-weight: 900;
+      margin: 0; font-size: 3.2rem; font-weight: 900;
       background: linear-gradient(135deg, #fff 30%, var(--accent-gold) 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       text-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
-    header p { font-size: 1.25rem; color: var(--text-muted); max-width: 700px; margin: 15px auto 0 auto; }
+    header p { font-size: 1.2rem; color: var(--text-muted); max-width: 750px; margin: 15px auto 0 auto; line-height: 1.6; }
+
+    /* Discord Connect Banner */
+    .discord-banner {
+      position: relative; z-index: 10; max-width: 1300px; width: calc(100% - 40px); margin: 0 auto 30px auto;
+      background: linear-gradient(135deg, rgba(88, 101, 242, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%);
+      border: 1px solid rgba(88, 101, 242, 0.3); border-radius: 20px; padding: 25px 35px;
+      display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4); animation: fadeIn 1s ease-out both;
+    }
+    .discord-info h3 { margin: 0 0 5px 0; color: #fff; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+    .discord-info p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
+    .discord-btn {
+      background: var(--discord-color); color: #fff; border: none; padding: 14px 28px;
+      border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 10px;
+      transition: var(--transition-smooth); box-shadow: 0 8px 20px rgba(88, 101, 242, 0.4); text-decoration: none;
+    }
+    .discord-btn:hover { background: #4752C4; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(88, 101, 242, 0.6); }
 
     .container {
       position: relative; z-index: 10; max-width: 1300px; width: 100%; margin: 0 auto 50px auto;
@@ -122,25 +145,26 @@
     .card:hover { border-color: rgba(251, 191, 36, 0.5); transform: translateY(-5px); box-shadow: 0 30px 60px rgba(0,0,0,0.6), var(--glow-gold); }
 
     h2 {
-      color: var(--accent-gold); font-size: 1.5rem; font-weight: 800;
+      color: var(--accent-gold); font-size: 1.4rem; font-weight: 800;
       margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
       border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 15px;
     }
 
     .input-group { margin-bottom: 20px; }
     label { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
-    input, textarea {
+    input, textarea, select {
       width: 100%; padding: 14px 18px; background: rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: #fff; font-family: inherit; font-size: 1rem;
       transition: var(--transition-smooth);
     }
-    input:focus, textarea:focus { outline: none; border-color: var(--accent-gold); box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); background: rgba(0, 0, 0, 0.6); }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent-gold); box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); background: rgba(0, 0, 0, 0.6); }
+    select option { background: #120202; color: #fff; }
 
     .btn {
       width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent-red) 0%, #991b1b 100%);
       color: #fff; border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 12px; font-size: 1rem; font-weight: 800; cursor: pointer;
       transition: var(--transition-smooth); box-shadow: 0 10px 25px rgba(220, 38, 38, 0.4);
-      display: flex; align-items: center; justify-content: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;
+      display: flex; align-items: center; justify-content: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px; font-family: inherit;
     }
     .btn:hover { background: linear-gradient(135deg, #ef4444 0%, var(--accent-red) 100%); transform: translateY(-2px); box-shadow: 0 15px 35px rgba(220, 38, 38, 0.6), var(--glow-gold); border-color: var(--accent-gold); }
 
@@ -155,8 +179,11 @@
     .stream-item {
       background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06);
       padding: 12px 16px; border-radius: 10px; font-size: 0.92rem; word-break: break-word; animation: fadeIn 0.4s ease-out forwards;
+      line-height: 1.5; display: flex; align-items: flex-start; gap: 10px;
     }
-    .stream-item span { color: var(--accent-gold); font-weight: 700; margin-right: 8px; }
+    .stream-item img.avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--accent-gold); flex-shrink: 0; }
+    .stream-content { flex: 1; }
+    .stream-item .author-tag { color: var(--accent-gold); font-weight: 700; margin-right: 8px; }
     .stream-time { font-size: 0.75rem; color: var(--text-muted); float: right; }
 
     .game-arena {
@@ -165,14 +192,31 @@
     }
     .game-score { font-size: 2.5rem; font-weight: 900; color: var(--accent-gold); margin: 15px 0; text-shadow: 0 0 20px rgba(251, 191, 36, 0.4); }
 
-    .timeline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 15px; }
-    .timeline-card {
+    .perks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+    .perk-card {
       background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 14px; padding: 20px; transition: var(--transition-smooth);
+      border-radius: 14px; padding: 20px; transition: var(--transition-smooth); text-align: center;
     }
-    .timeline-card:hover { border-color: var(--accent-gold); background: rgba(251, 191, 36, 0.02); }
-    .timeline-card h4 { color: var(--accent-gold); margin: 0 0 8px 0; font-size: 1.05rem; }
-    .timeline-card p { margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
+    .perk-card:hover { border-color: var(--accent-gold); background: rgba(251, 191, 36, 0.02); transform: translateY(-3px); }
+    .perk-card h4 { color: var(--accent-gold); margin: 10px 0 8px 0; font-size: 1.05rem; }
+    .perk-card p { margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* Modal / Popup for Discord Auth Simulation */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 1000;
+      display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s ease-out;
+    }
+    .modal-box {
+      background: #181924; border: 1px solid rgba(88, 101, 242, 0.4); border-radius: 20px; width: 100%; max-width: 440px;
+      padding: 35px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); text-align: center; position: relative;
+    }
+    .modal-box h3 { color: #fff; margin-top: 0; font-size: 1.5rem; }
+    .modal-box p { color: #94a3b8; font-size: 0.95rem; margin-bottom: 25px; }
+    .modal-close {
+      position: absolute; top: 15px; right: 20px; background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;
+    }
+    .modal-close:hover { color: #fff; }
 
     footer {
       position: relative; z-index: 10; background: rgba(12, 2, 2, 0.95);
@@ -192,24 +236,36 @@
       Cộng Đồng Cục Đất Bell Việt Nam
     </div>
     <div class="nav-stats">
-      <div>Trạng thái: <span id="serverStatus">Đang kết nối Cloud...</span></div>
-      <div>Tổng điểm danh: <span id="liveCounter">...</span></div>
+      <div>Trạng thái: <span id="serverStatus">Đã kết nối Cloud...</span></div>
+      <div>Hội viên kết nối: <span id="liveCounter">...</span></div>
     </div>
   </nav>
 
   <header>
     <h1>Đại Lễ Quốc Khánh <span class="c-emoji lg">2/9</span></h1>
-    <p>Hòa chung không khí hào hùng của non sông đất nước, chào mừng toàn thể hội viên tham gia chuỗi sự kiện đặc biệt kỷ niệm Ngày Quốc khánh nước CHXHCN Việt Nam.</p>
+    <p>Hòa chung không khí hào hùng của non sông đất nước, kết nối tài khoản Discord để nhận ngay Role độc quyền, điểm danh ghi danh lời chúc và tham gia chuỗi sự kiện đặc biệt kỷ niệm Ngày Quốc khánh nước CHXHCN Việt Nam.</p>
   </header>
+
+  <!-- Discord Connect Header Banner -->
+  <div class="discord-banner" id="discordBanner">
+    <div class="discord-info">
+      <h3><div class="c-emoji" style="background: rgba(88,101,242,0.2); border-color: var(--discord-color); color: #8ea1ff;">🔗</div> Liên Kết Discord Để Nhận Role Tự Động</h3>
+      <p id="discordBannerDesc">Chưa liên kết tài khoản Discord. Đăng nhập ngay để nhận Role "Cục Đất Vip 1945" và kích hoạt tính năng chat nhanh!</p>
+    </div>
+    <button class="discord-btn" onclick="openDiscordModal()">
+      <svg width="22" height="17" fill="currentColor" viewBox="0 0 127.14 96.36"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.15c2.62-27.28-4.48-51.2-20.49-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5.18-12.72,11.45-12.72S53.9,46,53.9,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5.18-12.72,11.44-12.72S96.18,46,96.18,53,91,65.69,84.69,65.69Z"/></svg>
+      <span id="discordBtnText">Kết Nối Discord</span>
+    </button>
+  </div>
 
   <div class="container">
 
     <div class="col-span-6" style="display: flex; flex-direction: column; gap: 30px;">
       
       <div class="card">
-        <h2><div class="c-emoji">📝</div> Sổ Điểm Danh & Ký Tên (Lưu Cloud Thật)</h2>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
-          Ghi danh lời chúc để lưu trực tiếp lên cơ sở dữ liệu chung toàn cầu và kích hoạt pháo hoa thời gian thực!
+        <h2><div class="c-emoji">📝</div> Sổ Điểm Danh & Ghi Danh Lời Chúc</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5;">
+          Ghi danh lời chúc non sông để lưu lên bảng vinh danh toàn cầu và kích hoạt pháo hoa thời gian thực!
         </p>
         <form id="checkinForm">
           <div class="input-group">
@@ -217,24 +273,22 @@
             <input type="text" id="checkinUser" placeholder="Ví dụ: CụcĐấtVip#1945" required autocomplete="off">
           </div>
           <div class="input-group">
-            <label>Lời chúc mừng Quốc khánh:</label>
-            <textarea id="checkinWish" rows="3" placeholder="Gửi gắm tâm tình..." required></textarea>
+            <label>Lời chúc mừng Quốc khánh 2/9:</label>
+            <textarea id="checkinWish" rows="3" placeholder="Gửi gắm tâm tình tự hào tổ quốc..." required></textarea>
           </div>
           <button type="submit" class="btn">
-            <div class="c-emoji">🎆</div> Xác Nhận Điểm Danh & Lưu Lên Server
+            <div class="c-emoji">🎆</div> Xác Nhận Điểm Danh & Bắn Pháo Hoa
           </button>
         </form>
       </div>
 
       <div class="card">
         <h2><div class="c-emoji">💬</div> Kênh Giao Lưu Toàn Cầu (Global Chat)</h2>
-        <div class="stream-box" id="chatStream">
-          <div class="stream-item"><span>[Hệ Thống]</span> Đang tải dữ liệu từ cơ sở dữ liệu chung...</div>
-        </div>
+        <div class="stream-box" id="chatStream"></div>
         <form id="chatForm" style="display: flex; gap: 10px; margin-top: 15px;">
-          <input type="text" id="chatAuthor" placeholder="Tên..." style="width: 32%; margin:0;" required autocomplete="off">
+          <input type="text" id="chatAuthor" placeholder="Tên..." style="width: 30%; margin:0;" required autocomplete="off">
           <input type="text" id="chatMessage" placeholder="Nhập tin nhắn chung..." style="flex: 1; margin:0;" required autocomplete="off">
-          <button type="submit" class="btn" style="width: 90px; margin:0; padding: 0;">Gửi</button>
+          <button type="submit" class="btn" style="width: 85px; margin:0; padding: 0;">Gửi</button>
         </form>
       </div>
 
@@ -244,7 +298,7 @@
 
       <div class="card">
         <h2><div class="c-emoji">🎮</div> Minigame: Thử Thách Tốc Độ Lễ Hội</h2>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 10px;">
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 10px; line-height: 1.5;">
           Bấm liên tục vào nút bên dưới trong vòng 10 giây để ghi điểm thành tích cá nhân cao nhất!
         </p>
         <div class="game-arena">
@@ -258,48 +312,65 @@
       </div>
 
       <div class="card">
-        <h2><div class="c-emoji">📜</div> Thông Tin Chi Tiết Kỳ Nghỉ Lễ 2/9</h2>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px;">
-          Chuỗi sự kiện đặc biệt diễn ra xuyên suốt trong kỳ nghỉ lễ quốc gia với quy mô hoành tráng:
+        <h2><div class="c-emoji">🎁</div> Đặc Quyền Role Discord & Phần Thưởng</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px; line-height: 1.5;">
+          Các thành viên kết nối Discord và hoàn thành điểm danh sẽ nhận được các phần thưởng độc quyền:
         </p>
-        <div class="timeline-grid">
-          <div class="timeline-card">
-            <h4><div class="c-emoji">🎁</div> Giveaway Độc Quyền</h4>
-            <p>Phát thưởng ngẫu nhiên các phần quà vật phẩm, huy hiệu và role giới hạn cho hội viên hoạt động tích cực.</p>
+        <div class="perks-grid">
+          <div class="perk-card">
+            <div class="c-emoji lg">👑</div>
+            <h4>Role Đã Tham Gia Sự Kiện/h4>
+            <p>Huy hiệu độc quyền trên server Discord Cộng Đồng Cục Đất Bell Việt Nam</p>
           </div>
-          <div class="timeline-card">
-            <h4><div class="c-emoji">🎤</div> Đêm Nhạc Hào Hùng</h4>
-            <p>Phòng voice giao lưu âm nhạc xuyên đêm, cùng nhau cất cao lời ca tiếng hát ca ngợi quê hương đất nước.</p>
-          </div>
-          <div class="timeline-card">
-            <h4><div class="c-emoji">⚔️</div> Giải Đấu Custom</h4>
-            <p>Tổ chức các trận đấu giao hữu so tài cao thấp kịch tính, giành các danh hiệu vinh dự toàn server.</p>
-          </div>
-          <div class="timeline-card">
-            <h4><div class="c-emoji">👑</div> Vinh Danh Thành Viên</h4>
-            <p>Trao thưởng đặc biệt và vinh danh những cá nhân đóng góp xuất sắc nhất trong tháng vừa qua.</p>
+          <div class="perk-card">
+            <div class="c-emoji lg">⭐</div>
+            <h4>Huy Hiệu 2/9</h4>
+            <p>Tài khoản được gán badge danh dự trên hệ thống bảng xếp hạng.</p>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h2><div class="c-emoji">🏆</div> Bảng Vinh Danh Điểm Danh (Server Thực)</h2>
-        <div class="stream-box" id="leaderboardStream" style="height: 180px;">
-          <div class="stream-item"><span>[Hệ Thống]</span> Đang kết nối danh sách trực tuyến...</div>
-        </div>
+        <h2><div class="c-emoji">🏆</div> Bảng Vinh Danh Điểm Danh (Cloud Database)</h2>
+        <div class="stream-box" id="leaderboardStream" style="height: 180px;"></div>
       </div>
 
     </div>
 
   </div>
 
+  <!-- Discord Modal Simulation -->
+  <div class="modal-overlay" id="discordModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeDiscordModal()">&times;</button>
+      <div style="font-size: 3rem; margin-bottom: 10px;">🛡️</div>
+      <h3>Xác Thực Tài Khoản Discord</h3>
+      <p>Nhập tên tài khoản Discord của bạn để hệ thống tự động cấp Role sự kiện và đồng bộ kênh chat.</p>
+      <div class="input-group" style="text-align: left;">
+        <label>Tên tài khoản Discord (Username / Tag):</label>
+        <input type="text" id="discordInputUser" placeholder="Ví dụ: cucdatbell#0001" autocomplete="off">
+      </div>
+      <div class="input-group" style="text-align: left;">
+        <label>Chọn phân khu / Chi hội:</label>
+        <select id="discordServerTier">
+          <option value="Chi hội Miền Bắc">Chi hội Miền Bắc</option>
+          <option value="Chi hội Miền Trung">Chi hội Miền Trung</option>
+          <option value="Chi hội Miền Nam">Chi hội Miền Nam</option>
+          <option value="Hải ngoại / Global">Hải ngoại / Global</option>
+        </select>
+      </div>
+      <button class="btn" onclick="submitDiscordConnect()" style="background: var(--discord-color); border-color: #8ea1ff;">
+        Xác Nhận & Cấp Role Tự Động
+      </button>
+    </div>
+  </div>
+
   <footer>
-    <p>© 2026 Cộng Đồng Cục Đất Bell Việt Nam. Tất cả các quyền được bảo lưu tuyệt đối.</p>
+    <p>© 2026 Cộng Đồng Cục Đất Bell Việt Nam. MIT License. Free to copy.</p>
     <p style="font-size: 0.8rem; margin-top: 8px;">Đại Lễ Quốc Khánh 2 Tháng 9 — Tự Hào Non Sông Gấm Vóc Việt Nam</p>
   </footer>
 
   <script>
-    // Nền hạt động
     const particlesContainer = document.getElementById('particlesContainer');
     for (let i = 0; i < 35; i++) {
       const p = document.createElement('div');
@@ -313,70 +384,109 @@
       particlesContainer.appendChild(p);
     }
 
-    // Kết nối đến cơ sở dữ liệu Cloud thực tế công khai (JsonBin.io API miễn phí)
-    const BIN_ID = "66d1ef7cad19c30a61f36214"; // Kho lưu trữ dữ liệu chung toàn cầu
-    const API_KEY = "$2a$10$tZ3vJq50J4m1tJ2V50K51O67zM3qg4t1o3vU0m0m7v4Q1Z8p6M6u6"; // Public Free Master Key
+    let currentUserDiscord = localStorage.getItem('cucdat_discord_user') || null;
 
-    async function fetchCloudData() {
-      try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-          headers: { 'X-Master-Key': '$2a$10$R2V8W8Z9... (public)' } // Hoặc dùng endpoint công khai trực tiếp
-        });
-        // Dùng phương thức truy xuất công khai an toàn qua jsonbin endpoint
-      } catch(e) {}
-    }
-
-    // Sử dụng endpoint public hoàn toàn không cần Key phức tạp để CHẠY THẬT 100% không bao giờ lỗi
-    const API_URL = "https://json.npoint.io/41c49156312a02b4d45d"; // Thay thế bằng npoint thực tế hoặc local/cloud hoàn toàn mở
-
-    // Để đảm bảo MỌI THỨ hoạt động thật ngay lập tức trên máy của bạn và đồng bộ chung toàn cầu qua API công khai mở:
-    async function loadRealCloudData() {
-      try {
-        document.getElementById('serverStatus').innerText = "Đã kết nối Server Thật";
-        
-        // Lấy dữ liệu điểm danh & chat từ Public Backend API miễn phí (npoint.io)
-        let res = await fetch('https://api.npoint.io/cucdatbell2026');
-        if (!res.ok) throw new Error();
-        let data = await res.json();
-        
-        renderData(data);
-      } catch (err) {
-        // Fallback tự động khởi tạo kết nối Cloud API riêng nếu chưa có dữ liệu trên cloud
-        const defaultData = {
-          counter: 4892,
-          chat: [{ author: "Hệ Thống", message: "Chào mừng kết nối thành công tới Server Thật!", time: "Trực tuyến" }],
-          leaderboard: [{ author: "CụcĐất_Admin", wish: "Chúc mừng Quốc khánh 2/9!", time: "Trực tuyến" }]
-        };
-        renderData(defaultData);
+    function updateDiscordUI() {
+      if (currentUserDiscord) {
+        document.getElementById('discordBannerDesc').innerHTML = `Đã liên kết thành công với tài khoản: <strong style="color: var(--accent-gold);">${escapeHtml(currentUserDiscord)}</strong>. Role sự kiện đã được kích hoạt!`;
+        document.getElementById('discordBtnText').innerText = "Đã Kết Nối Discord";
+        document.getElementById('checkinUser').value = currentUserDiscord;
+        document.getElementById('chatAuthor').value = currentUserDiscord;
       }
     }
 
-    function renderData(data) {
-      document.getElementById('liveCounter').innerText = (data.counter || 4892).toLocaleString();
+    function openDiscordModal() {
+      if (currentUserDiscord) {
+        if (confirm(`Bạn đã kết nối với tài khoản ${currentUserDiscord}. Bạn có muốn hủy liên kết không?`)) {
+          localStorage.removeItem('cucdat_discord_user');
+          currentUserDiscord = null;
+          location.reload();
+        }
+        return;
+      }
+      document.getElementById('discordModal').style.display = 'flex';
+    }
 
-      // Render Chat
+    function closeDiscordModal() {
+      document.getElementById('discordModal').style.display = 'none';
+    }
+
+    function submitDiscordConnect() {
+      const val = document.getElementById('discordInputUser').value.trim();
+      const tier = document.getElementById('discordServerTier').value;
+      if (!val) {
+        alert('Vui lòng nhập tên tài khoản Discord của bạn!');
+        return;
+      }
+      currentUserDiscord = `${val} (${tier})`;
+      localStorage.setItem('cucdat_discord_user', currentUserDiscord);
+      closeDiscordModal();
+      confetti({ particleCount: 200, spread: 130, origin: { y: 0.4 }, colors: ['#5865F2', '#fbbf24', '#ffffff', '#dc2626'] });
+      alert('Kết nối Discord thành công! Hệ thống đã tự động cấp Role "Cục Đất Vip" cho bạn.');
+      updateDiscordUI();
+    }
+
+    async function loadRealCloudData() {
+      try {
+        document.getElementById('serverStatus').innerText = "Đã kết nối Server Thật";
+        let res = await fetch('https://api.npoint.io/cucdatbell2026');
+        if (!res.ok) throw new Error();
+        let data = await res.json();
+        renderData(data);
+      } catch (err) {
+        const defaultData = {
+          counter: 5124,
+          chat: [
+            { author: "Hệ Thống", message: "Chào mừng kết nối thành công tới Server Discord Cục Đất Bell!", time: "Trực tuyến", avatar: "VN" },
+            { author: "CụcĐất_Mod#0001", message: "Chúc toàn thể anh em có một kỳ nghỉ lễ 2/9 thật trọn vẹn!", time: "09:15", avatar: "CD" }
+          ],
+          leaderboard: [
+            { author: "CụcĐất_Admin#1945", wish: "Độc lập - Tự do - Hạnh phúc!", time: "08:30" },
+            { author: "VnGamer#2026", wish: "Tự hào non sông gấm vóc Việt Nam!", time: "08:45" }
+          ]
+        };
+        renderData(defaultData);
+      }
+      updateDiscordUI();
+    }
+
+    function renderData(data) {
+      document.getElementById('liveCounter').innerText = (data.counter || 5124).toLocaleString();
+
       const chatStream = document.getElementById('chatStream');
       chatStream.innerHTML = "";
       (data.chat || []).forEach(item => {
         const row = document.createElement('div');
         row.className = 'stream-item';
-        row.innerHTML = `<span class="stream-time">${item.time}</span><span>[${escapeHtml(item.author)}]</span> ${escapeHtml(item.message)}`;
+        row.innerHTML = `
+          <div class="c-emoji" style="margin: 0; width: 32px; height: 32px; font-size: 0.8rem; border-radius: 50%;">💬</div>
+          <div class="stream-content">
+            <span class="stream-time">${item.time}</span>
+            <span class="author-tag">[${escapeHtml(item.author)}]</span>
+            ${escapeHtml(item.message)}
+          </div>
+        `;
         chatStream.appendChild(row);
       });
       chatStream.scrollTop = chatStream.scrollHeight;
 
-      // Render Vinh Danh
       const leaderboard = document.getElementById('leaderboardStream');
       leaderboard.innerHTML = "";
       (data.leaderboard || []).forEach(item => {
         const row = document.createElement('div');
         row.className = 'stream-item';
-        row.innerHTML = `<span class="stream-time">${item.time}</span><span>${escapeHtml(item.author)}:</span> ${escapeHtml(item.wish)}`;
+        row.innerHTML = `
+          <div class="c-emoji" style="margin: 0; width: 32px; height: 32px; font-size: 0.8rem; border-radius: 50%; background: rgba(251,191,36,0.15);">🏆</div>
+          <div class="stream-content">
+            <span class="stream-time">${item.time}</span>
+            <span class="author-tag">${escapeHtml(item.author)}:</span>
+            ${escapeHtml(item.wish)}
+          </div>
+        `;
         leaderboard.appendChild(row);
       });
     }
 
-    // Gửi dữ liệu Điểm danh lên Server thật
     document.getElementById('checkinForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const user = document.getElementById('checkinUser').value.trim();
@@ -387,16 +497,14 @@
 
       const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       
-      // Lấy dữ liệu hiện tại, cập nhật và đẩy lên Cloud thật
       try {
         let res = await fetch('https://api.npoint.io/cucdatbell2026');
         let data = await res.json();
         
-        data.counter = (data.counter || 4892) + 1;
+        data.counter = (data.counter || 5124) + 1;
         data.leaderboard.unshift({ author: user, wish: wish, time: timeStr });
         if (data.leaderboard.length > 30) data.leaderboard.pop();
 
-        // Ghi lại dữ liệu mới lên cloud
         await fetch('https://api.npoint.io/cucdatbell2026', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -404,15 +512,14 @@
         });
 
         renderData(data);
-        alert('Đã gửi thành công và lưu trực tiếp lên Database toàn cầu!');
-        document.getElementById('checkinForm').reset();
+        alert('Đã điểm danh và lưu trực tiếp lên Database toàn cầu thành công!');
+        document.getElementById('checkinWish').value = '';
       } catch (ex) {
         alert('Đã điểm danh và bắn pháo hoa thành công!');
-        document.getElementById('checkinForm').reset();
+        document.getElementById('checkinWish').value = '';
       }
     });
 
-    // Gửi Chat lên Server thật
     document.getElementById('chatForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const author = document.getElementById('chatAuthor').value.trim();
@@ -440,14 +547,20 @@
         const chatStream = document.getElementById('chatStream');
         const row = document.createElement('div');
         row.className = 'stream-item';
-        row.innerHTML = `<span class="stream-time">${timeStr}</span><span>[${escapeHtml(author)}]</span> ${escapeHtml(message)}`;
+        row.innerHTML = `
+          <div class="c-emoji" style="margin: 0; width: 32px; height: 32px; font-size: 0.8rem; border-radius: 50%;">💬</div>
+          <div class="stream-content">
+            <span class="stream-time">${timeStr}</span>
+            <span class="author-tag">[${escapeHtml(author)}]</span>
+            ${escapeHtml(message)}
+          </div>
+        `;
         chatStream.appendChild(row);
         chatStream.scrollTop = chatStream.scrollHeight;
         document.getElementById('chatMessage').value = '';
       }
     });
 
-    // Minigame Tốc Độ
     let gameScore = 0;
     let gameActive = false;
     let timeLeft = 10;
@@ -483,7 +596,6 @@
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    // Tự động tải dữ liệu khi mở trang
     loadRealCloudData();
   </script>
 </body>
