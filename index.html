@@ -1,602 +1,1046 @@
 <!DOCTYPE html>
+<!--
+  =====================================================================
+  CỘNG ĐỒNG CỤC ĐẤT BELL VIỆT NAM — SỰ KIỆN QUỐC KHÁNH 2/9/2026
+  =====================================================================
+  TRƯỚC KHI ĐƯA TRANG WEB NÀY LÊN, ADMIN CẦN ĐIỀN CẤU HÌNH BÊN DƯỚI
+  (tìm dòng "==== CONFIG ====" trong phần <script> ở cuối file):
+
+    1. SUPABASE_URL, SUPABASE_ANON_KEY
+       - Tạo project miễn phí tại https://supabase.com
+       - Vào SQL Editor, chạy file "supabase-schema.sql" (đi kèm) để tạo
+         3 bảng: chat_messages, wishes, game_scores
+       - Vào Project Settings > API để lấy URL và anon key
+
+    2. DISCORD_CLIENT_ID, DISCORD_REDIRECT_URI
+       - Tạo ứng dụng tại https://discord.com/developers/applications
+       - Trong OAuth2 > Redirects, thêm đúng URL trang web của bạn
+         (ví dụ: https://cucdatbell.com/index.html)
+
+    3. DISCORD_ROLE_FUNCTION_URL
+       - Deploy Edge Function "discord-role" (file đi kèm
+         "discord-role-function.ts") lên Supabase
+       - Function này giữ Bot Token + Client Secret một cách an toàn,
+         KHÔNG bao giờ được đặt các secret đó trong file HTML này
+       - Xem chi tiết từng bước trong "SETUP.md" đi kèm
+
+  Nếu chưa cấu hình, các khu vực liên quan sẽ tự hiển thị thông báo
+  "chưa cấu hình" thay vì báo lỗi hay giả vờ hoạt động.
+  =====================================================================
+-->
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đại Lễ Quốc Khánh 2 Tháng 9 - Sự kiện</title>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-gradient: radial-gradient(circle at center, #2a0808 0%, #120202 100%);
-      --card-bg: rgba(255, 255, 255, 0.03);
-      --card-border: rgba(251, 191, 36, 0.2);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent-red: #dc2626;
-      --accent-gold: #fbbf24;
-      --discord-color: #5865F2;
-      --glow-gold: 0 0 25px rgba(251, 191, 36, 0.3);
-      --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sự Kiện Quốc Khánh 2/9/2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#DA251D;
+    --red-deep:#8C1007;
+    --red-night:#2B0503;
+    --gold:#FFCD00;
+    --gold-soft:#F4D35E;
+    --cream:#FFF8E9;
+    --cream-dim:#F3EAD3;
+    --ink:#2A1208;
+    --ink-soft:#6B4438;
+    --line:rgba(42,18,8,0.12);
+    --radius-s:6px;
+    --radius-m:14px;
+    --shadow:0 10px 30px rgba(43,5,3,0.18);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Be Vietnam Pro', sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    line-height:1.6;
+  }
+  img{max-width:100%;display:block;}
+  a{color:inherit;}
+  h1,h2,h3{font-family:'Be Vietnam Pro', sans-serif;font-weight:800;line-height:1.15;margin:0 0 0.5em;}
+  p{margin:0 0 1em;}
+  .container{max-width:1080px;margin:0 auto;padding:0 24px;}
+  .eyebrow-line{display:flex;align-items:center;gap:10px;color:var(--red-deep);font-weight:600;font-size:0.95rem;margin-bottom:10px;}
+  .eyebrow-line .dash{width:28px;height:2px;background:var(--gold);border-radius:2px;}
 
-    * { box-sizing: border-box; }
+  /* ============ HEADER ============ */
+  header.site-header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(140,16,7,0.94);
+    backdrop-filter:blur(6px);
+    border-bottom:2px solid var(--gold);
+  }
+  .header-inner{
+    max-width:1080px;margin:0 auto;padding:0 24px;
+    display:flex;align-items:center;justify-content:space-between;
+    height:64px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;color:var(--cream);text-decoration:none;font-weight:800;font-size:1.05rem;white-space:nowrap;}
+  .brand-star{width:22px;height:22px;flex:none;}
+  nav.main-nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;}
+  nav.main-nav::-webkit-scrollbar{display:none;}
+  nav.main-nav a{
+    color:var(--cream-dim);text-decoration:none;font-size:0.9rem;font-weight:600;
+    padding:8px 12px;border-radius:var(--radius-s);white-space:nowrap;
+    transition:background 0.15s ease, color 0.15s ease;
+  }
+  nav.main-nav a:hover{background:rgba(255,205,0,0.16);color:var(--gold);}
+  .discord-btn{
+    background:var(--gold);color:var(--red-deep);border:none;
+    font-family:inherit;font-weight:700;font-size:0.88rem;
+    padding:9px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;
+    transition:transform 0.12s ease, box-shadow 0.12s ease;
+    flex:none;
+  }
+  .discord-btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(0,0,0,0.2);}
+  .discord-btn:active{transform:translateY(0);}
+  .discord-btn[disabled]{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
 
-    body {
-      margin: 0;
-      font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg-gradient);
-      color: var(--text-main);
-      min-height: 100vh;
-      overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+  /* ============ HERO ============ */
+  #hero{
+    position:relative;overflow:hidden;
+    min-height:min(92vh, 780px);
+    display:flex;align-items:center;
+    background:radial-gradient(ellipse at 30% 20%, #6E0F08 0%, var(--red-night) 65%);
+    color:var(--cream);
+  }
+  #fireworks-canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .hero-content{position:relative;z-index:2;padding:120px 24px 90px;max-width:1080px;margin:0 auto;width:100%;}
+  .hero-date{
+    display:inline-flex;align-items:center;gap:10px;
+    border:1px solid rgba(255,205,0,0.5);border-radius:999px;
+    padding:7px 16px;font-size:0.85rem;font-weight:600;letter-spacing:0.02em;
+    color:var(--gold-soft);margin-bottom:28px;
+  }
+  .hero-title{
+    font-size:clamp(2.4rem, 6vw, 4.6rem);
+    max-width:16ch;
+    color:var(--cream);
+  }
+  .hero-title em{color:var(--gold);font-style:normal;}
+  .hero-sub{max-width:52ch;font-size:1.1rem;color:rgba(255,248,233,0.82);margin-bottom:36px;}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px;}
+  .btn-primary{
+    background:var(--gold);color:var(--red-deep);border:none;font-family:inherit;
+    font-weight:700;font-size:0.98rem;padding:14px 26px;border-radius:999px;cursor:pointer;
+    transition:transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,0.28);}
+  .btn-secondary{
+    background:transparent;color:var(--cream);border:1.5px solid rgba(255,248,233,0.5);
+    font-family:inherit;font-weight:700;font-size:0.98rem;padding:13px 26px;border-radius:999px;
+    cursor:pointer;transition:border-color 0.12s ease, background 0.12s ease;
+    text-decoration:none;display:inline-flex;align-items:center;
+  }
+  .btn-secondary:hover{border-color:var(--gold);background:rgba(255,205,0,0.08);}
 
-    .c-emoji {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 24px;
-      height: 24px;
-      background: rgba(251, 191, 36, 0.1);
-      border: 1px solid var(--accent-gold);
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: var(--accent-gold);
-      vertical-align: middle;
-      margin: 0 3px;
-      box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
-      animation: pulseGlow 2s infinite alternate;
-    }
-    .c-emoji.lg { width: 42px; height: 42px; font-size: 1.1rem; border-radius: 12px; border-width: 2px; }
+  /* ============ SECTIONS ============ */
+  section.page-section{padding:86px 0;}
+  section.page-section.on-cream{background:var(--cream);}
+  section.page-section.on-dim{background:var(--cream-dim);}
+  section.page-section.on-red{background:linear-gradient(160deg, var(--red) 0%, var(--red-deep) 100%);color:var(--cream);}
+  .section-head{max-width:640px;margin-bottom:40px;}
+  .section-head h2{font-size:clamp(1.6rem,3.4vw,2.3rem);}
+  .section-head p{color:var(--ink-soft);}
+  section.page-section.on-red .section-head p{color:rgba(255,248,233,0.85);}
 
-    @keyframes pulseGlow {
-      0% { box-shadow: 0 0 5px rgba(251, 191, 36, 0.1); transform: scale(1); }
-      100% { box-shadow: 0 0 15px rgba(251, 191, 36, 0.5); transform: scale(1.05); }
-    }
+  .two-col{display:grid;grid-template-columns:1.1fr 0.9fr;gap:48px;align-items:start;}
+  @media (max-width:820px){.two-col{grid-template-columns:1fr;}}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+  .info-card{
+    background:var(--cream);border:1px solid var(--line);border-radius:var(--radius-m);
+    padding:26px;box-shadow:var(--shadow);
+  }
+  .info-card h3{font-size:1.05rem;margin-bottom:8px;}
+  .info-card .note{color:var(--ink-soft);font-size:0.92rem;}
+  .stat-row{display:flex;gap:28px;flex-wrap:wrap;margin-top:18px;}
+  .stat{min-width:110px;}
+  .stat .num{font-size:1.7rem;font-weight:800;color:var(--red-deep);}
+  .stat .label{font-size:0.85rem;color:var(--ink-soft);}
 
-    @keyframes floatParticle {
-      0% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
-      50% { opacity: 1; }
-      100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-    }
+  .culture-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(220px,1fr));gap:22px;}
+  .culture-card{
+    background:var(--cream);border-radius:var(--radius-m);overflow:hidden;
+    border:1px solid var(--line);box-shadow:var(--shadow);
+  }
+  .culture-card .thumb{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--cream-dim);}
+  .culture-card .body{padding:16px 18px 20px;}
+  .culture-card h3{font-size:1rem;margin-bottom:6px;}
+  .culture-card p{font-size:0.9rem;color:var(--ink-soft);margin-bottom:0;}
+  .culture-card .skeleton{width:100%;aspect-ratio:4/3;background:linear-gradient(100deg,var(--cream-dim) 30%,#fff 50%,var(--cream-dim) 70%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
+  @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
 
-    .ambient-particles {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none; z-index: 0; overflow: hidden;
-    }
-    .particle {
-      position: absolute; bottom: -50px;
-      background: radial-gradient(circle, var(--accent-gold) 0%, transparent 70%);
-      border-radius: 50%;
-      animation: floatParticle linear infinite;
-    }
+  .tradition-list{display:grid;gap:18px;}
+  .tradition-item{display:grid;grid-template-columns:44px 1fr;gap:16px;align-items:start;}
+  .tradition-item .mark{width:44px;height:44px;flex:none;}
+  .tradition-item h3{font-size:1.05rem;margin-bottom:4px;}
+  .tradition-item p{color:var(--ink-soft);margin-bottom:0;font-size:0.95rem;}
 
-    nav {
-      position: relative; z-index: 10;
-      background: rgba(18, 2, 2, 0.85);
-      backdrop-filter: blur(15px);
-      border-bottom: 1px solid var(--card-border);
-      padding: 16px 40px;
-      display: flex; justify-content: space-between; align-items: center;
-      animation: fadeIn 0.8s ease-out;
-    }
-    .nav-brand {
-      font-weight: 800; font-size: 1.2rem; color: var(--accent-gold);
-      display: flex; align-items: center; gap: 12px;
-    }
-    .nav-stats { display: flex; gap: 20px; font-size: 0.9rem; color: var(--text-muted); align-items: center; }
-    .nav-stats span { color: var(--accent-gold); font-weight: 700; }
+  /* ============ GAMES ============ */
+  .game-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;}
+  @media (max-width:820px){.game-grid{grid-template-columns:1fr;}}
+  .game-card{
+    background:var(--cream);border:1px solid var(--line);border-radius:var(--radius-m);
+    padding:28px;box-shadow:var(--shadow);display:flex;flex-direction:column;
+  }
+  .game-card h3{font-size:1.15rem;}
+  .game-card .desc{color:var(--ink-soft);font-size:0.92rem;margin-bottom:20px;}
+  .click-target{
+    width:100%;height:170px;border-radius:var(--radius-m);
+    background:linear-gradient(160deg, var(--red) 0%, var(--red-deep) 100%);
+    color:var(--cream);border:none;cursor:pointer;font-family:inherit;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+    transition:transform 0.06s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .click-target:active{transform:scale(0.97);}
+  .click-target .big{font-size:2.4rem;font-weight:800;}
+  .click-target .small{font-size:0.85rem;opacity:0.85;}
+  .game-meta{display:flex;justify-content:space-between;margin-top:16px;font-size:0.9rem;color:var(--ink-soft);}
+  .quiz-box{min-height:220px;display:flex;flex-direction:column;}
+  .quiz-progress{font-size:0.85rem;color:var(--ink-soft);margin-bottom:10px;}
+  .quiz-question{font-weight:700;font-size:1.05rem;margin-bottom:16px;}
+  .quiz-options{display:grid;gap:10px;}
+  .quiz-option{
+    text-align:left;background:var(--cream-dim);border:1.5px solid var(--line);border-radius:var(--radius-s);
+    padding:12px 14px;font-family:inherit;font-size:0.95rem;cursor:pointer;
+    transition:border-color 0.12s ease, background 0.12s ease;
+  }
+  .quiz-option:hover{border-color:var(--red);}
+  .quiz-option.correct{background:#E7F4E6;border-color:#3C8B3C;}
+  .quiz-option.wrong{background:#FBE7E4;border-color:var(--red);}
+  .quiz-option[disabled]{cursor:default;}
+  .quiz-result{text-align:center;padding:20px 0;}
+  .quiz-result .score{font-size:2.2rem;font-weight:800;color:var(--red-deep);}
 
-    header {
-      position: relative; z-index: 10; text-align: center; padding: 70px 20px 40px 20px;
-      background: radial-gradient(ellipse at bottom, rgba(220, 38, 38, 0.15) 0%, transparent 70%);
-      animation: fadeIn 1.2s ease-out both;
-    }
-    header h1 {
-      margin: 0; font-size: 3.2rem; font-weight: 900;
-      background: linear-gradient(135deg, #fff 30%, var(--accent-gold) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      text-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-    header p { font-size: 1.2rem; color: var(--text-muted); max-width: 750px; margin: 15px auto 0 auto; line-height: 1.6; }
+  /* ============ LEADERBOARD ============ */
+  .tabs{display:flex;gap:8px;margin-bottom:22px;}
+  .tab-btn{
+    background:transparent;border:1.5px solid var(--line);border-radius:999px;
+    padding:8px 18px;font-family:inherit;font-weight:600;font-size:0.9rem;cursor:pointer;color:var(--ink);
+    transition:all 0.12s ease;
+  }
+  .tab-btn.active{background:var(--red);border-color:var(--red);color:var(--cream);}
+  table.leaderboard{width:100%;border-collapse:collapse;background:var(--cream);border-radius:var(--radius-m);overflow:hidden;box-shadow:var(--shadow);}
+  table.leaderboard th,table.leaderboard td{padding:13px 18px;text-align:left;font-size:0.94rem;}
+  table.leaderboard thead th{background:var(--red-deep);color:var(--cream);font-weight:700;}
+  table.leaderboard tbody tr:nth-child(odd){background:var(--cream-dim);}
+  table.leaderboard td.rank{font-weight:800;color:var(--red-deep);width:50px;}
+  .empty-note{color:var(--ink-soft);font-size:0.92rem;padding:18px;background:var(--cream-dim);border-radius:var(--radius-s);}
 
-    /* Discord Connect Banner */
-    .discord-banner {
-      position: relative; z-index: 10; max-width: 1300px; width: calc(100% - 40px); margin: 0 auto 30px auto;
-      background: linear-gradient(135deg, rgba(88, 101, 242, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%);
-      border: 1px solid rgba(88, 101, 242, 0.3); border-radius: 20px; padding: 25px 35px;
-      display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(20px);
-      box-shadow: 0 15px 35px rgba(0,0,0,0.4); animation: fadeIn 1s ease-out both;
-    }
-    .discord-info h3 { margin: 0 0 5px 0; color: #fff; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
-    .discord-info p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
-    .discord-btn {
-      background: var(--discord-color); color: #fff; border: none; padding: 14px 28px;
-      border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 10px;
-      transition: var(--transition-smooth); box-shadow: 0 8px 20px rgba(88, 101, 242, 0.4); text-decoration: none;
-    }
-    .discord-btn:hover { background: #4752C4; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(88, 101, 242, 0.6); }
+  /* ============ WISHES ============ */
+  .wish-form{display:flex;flex-direction:column;gap:12px;max-width:520px;margin-bottom:34px;}
+  .wish-form textarea, .wish-form input, .chat-input input{
+    font-family:inherit;font-size:0.95rem;padding:12px 14px;border-radius:var(--radius-s);
+    border:1.5px solid var(--line);background:#fff;color:var(--ink);resize:vertical;
+  }
+  .wish-form textarea:focus, .wish-form input:focus, .chat-input input:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--red);}
+  .wish-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(230px,1fr));gap:16px;}
+  .wish-card{
+    background:var(--cream);border-left:4px solid var(--gold);border-radius:var(--radius-s);
+    padding:16px 18px;box-shadow:var(--shadow);
+  }
+  .wish-card .name{font-weight:700;font-size:0.9rem;color:var(--red-deep);margin-bottom:6px;}
+  .wish-card .content{font-size:0.94rem;}
 
-    .container {
-      position: relative; z-index: 10; max-width: 1300px; width: 100%; margin: 0 auto 50px auto;
-      padding: 0 20px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 30px;
-    }
-    .col-span-6 { grid-column: span 6; }
-    @media (max-width: 1024px) { .col-span-6 { grid-column: span 12; } }
+  /* ============ CHAT ============ */
+  .chat-wrap{
+    max-width:640px;margin:0 auto;background:var(--cream);border-radius:var(--radius-m);
+    border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden;
+  }
+  .chat-log{height:360px;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px;}
+  .chat-msg{max-width:80%;}
+  .chat-msg .who{font-size:0.78rem;font-weight:700;color:var(--red-deep);margin-bottom:2px;}
+  .chat-msg .bubble{background:var(--cream-dim);border-radius:12px;padding:9px 13px;font-size:0.93rem;}
+  .chat-msg.mine{align-self:flex-end;}
+  .chat-msg.mine .bubble{background:var(--red);color:var(--cream);}
+  .chat-msg.mine .who{text-align:right;}
+  .chat-input{display:flex;gap:10px;padding:14px;border-top:1px solid var(--line);}
+  .chat-input input{flex:1;}
+  .send-btn{
+    background:var(--red);color:var(--cream);border:none;border-radius:var(--radius-s);
+    padding:0 20px;font-family:inherit;font-weight:700;cursor:pointer;
+  }
+  .send-btn:hover{background:var(--red-deep);}
 
-    .card {
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      backdrop-filter: blur(20px); border-radius: 20px; padding: 35px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4); transition: var(--transition-smooth);
-      animation: fadeIn 1s ease-out both; position: relative; overflow: hidden;
-    }
-    .card:hover { border-color: rgba(251, 191, 36, 0.5); transform: translateY(-5px); box-shadow: 0 30px 60px rgba(0,0,0,0.6), var(--glow-gold); }
+  .config-banner{
+    background:#3A2410;color:#FFE9B0;font-size:0.85rem;padding:12px 18px;text-align:center;
+  }
+  .config-banner strong{color:var(--gold);}
 
-    h2 {
-      color: var(--accent-gold); font-size: 1.4rem; font-weight: 800;
-      margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 15px;
-    }
+  /* ============ MODAL ============ */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(43,5,3,0.55);display:none;
+    align-items:center;justify-content:center;z-index:200;padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{
+    background:var(--cream);border-radius:var(--radius-m);padding:28px;max-width:380px;width:100%;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35);
+  }
+  .modal-box h3{font-size:1.15rem;margin-bottom:8px;}
+  .modal-box p{color:var(--ink-soft);font-size:0.9rem;}
+  .modal-box input{width:100%;font-family:inherit;font-size:0.95rem;padding:11px 13px;border-radius:var(--radius-s);border:1.5px solid var(--line);margin:14px 0;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;}
+  .modal-actions button{font-family:inherit;font-weight:700;border-radius:999px;padding:9px 18px;cursor:pointer;border:none;}
+  .modal-actions .cancel{background:transparent;color:var(--ink-soft);}
+  .modal-actions .confirm{background:var(--red);color:var(--cream);}
 
-    .input-group { margin-bottom: 20px; }
-    label { display: block; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
-    input, textarea, select {
-      width: 100%; padding: 14px 18px; background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: #fff; font-family: inherit; font-size: 1rem;
-      transition: var(--transition-smooth);
-    }
-    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent-gold); box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); background: rgba(0, 0, 0, 0.6); }
-    select option { background: #120202; color: #fff; }
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:var(--cream);padding:12px 20px;border-radius:999px;
+    font-size:0.88rem;z-index:300;box-shadow:0 10px 26px rgba(0,0,0,0.3);
+    opacity:0;pointer-events:none;transition:opacity 0.25s ease, transform 0.25s ease;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
 
-    .btn {
-      width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent-red) 0%, #991b1b 100%);
-      color: #fff; border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 12px; font-size: 1rem; font-weight: 800; cursor: pointer;
-      transition: var(--transition-smooth); box-shadow: 0 10px 25px rgba(220, 38, 38, 0.4);
-      display: flex; align-items: center; justify-content: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px; font-family: inherit;
-    }
-    .btn:hover { background: linear-gradient(135deg, #ef4444 0%, var(--accent-red) 100%); transform: translateY(-2px); box-shadow: 0 15px 35px rgba(220, 38, 38, 0.6), var(--glow-gold); border-color: var(--accent-gold); }
+  /* ============ FOOTER ============ */
+  footer.site-footer{background:var(--red-night);color:rgba(255,248,233,0.75);padding:44px 0 28px;}
+  .footer-inner{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;margin-bottom:24px;}
+  .footer-inner .brand{color:var(--cream);}
+  .footer-links{display:flex;gap:16px;flex-wrap:wrap;font-size:0.9rem;}
+  .footer-links a{text-decoration:none;}
+  .footer-links a:hover{color:var(--gold);}
+  .footer-bottom{border-top:1px solid rgba(255,248,233,0.15);padding-top:18px;font-size:0.82rem;text-align:center;}
 
-    .stream-box {
-      height: 260px; overflow-y: auto; background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px;
-      display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth;
-    }
-    .stream-box::-webkit-scrollbar { width: 6px; }
-    .stream-box::-webkit-scrollbar-thumb { background: rgba(251, 191, 36, 0.2); border-radius: 10px; }
-
-    .stream-item {
-      background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 12px 16px; border-radius: 10px; font-size: 0.92rem; word-break: break-word; animation: fadeIn 0.4s ease-out forwards;
-      line-height: 1.5; display: flex; align-items: flex-start; gap: 10px;
-    }
-    .stream-item img.avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--accent-gold); flex-shrink: 0; }
-    .stream-content { flex: 1; }
-    .stream-item .author-tag { color: var(--accent-gold); font-weight: 700; margin-right: 8px; }
-    .stream-time { font-size: 0.75rem; color: var(--text-muted); float: right; }
-
-    .game-arena {
-      background: rgba(0, 0, 0, 0.4); border: 1px solid var(--card-border);
-      border-radius: 16px; padding: 25px; text-align: center; margin-top: 15px;
-    }
-    .game-score { font-size: 2.5rem; font-weight: 900; color: var(--accent-gold); margin: 15px 0; text-shadow: 0 0 20px rgba(251, 191, 36, 0.4); }
-
-    .perks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-    .perk-card {
-      background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 14px; padding: 20px; transition: var(--transition-smooth); text-align: center;
-    }
-    .perk-card:hover { border-color: var(--accent-gold); background: rgba(251, 191, 36, 0.02); transform: translateY(-3px); }
-    .perk-card h4 { color: var(--accent-gold); margin: 10px 0 8px 0; font-size: 1.05rem; }
-    .perk-card p { margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
-
-    /* Modal / Popup for Discord Auth Simulation */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 1000;
-      display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s ease-out;
-    }
-    .modal-box {
-      background: #181924; border: 1px solid rgba(88, 101, 242, 0.4); border-radius: 20px; width: 100%; max-width: 440px;
-      padding: 35px; box-shadow: 0 25px 50px rgba(0,0,0,0.8); text-align: center; position: relative;
-    }
-    .modal-box h3 { color: #fff; margin-top: 0; font-size: 1.5rem; }
-    .modal-box p { color: #94a3b8; font-size: 0.95rem; margin-bottom: 25px; }
-    .modal-close {
-      position: absolute; top: 15px; right: 20px; background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;
-    }
-    .modal-close:hover { color: #fff; }
-
-    footer {
-      position: relative; z-index: 10; background: rgba(12, 2, 2, 0.95);
-      border-top: 1px solid var(--card-border); text-align: center; padding: 40px 20px;
-      color: var(--text-muted); font-size: 0.9rem; margin-top: auto;
-    }
-    footer p { margin: 5px 0; }
-  </style>
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .culture-card .skeleton{animation:none;}
+  }
+  @media (max-width:640px){
+    .header-inner{height:auto;flex-wrap:wrap;padding:10px 20px;gap:8px;}
+    nav.main-nav{order:3;width:100%;justify-content:flex-start;}
+    section.page-section{padding:60px 0;}
+  }
+</style>
 </head>
 <body>
 
-  <div class="ambient-particles" id="particlesContainer"></div>
+<div id="config-banner-slot"></div>
 
-  <nav>
-    <div class="nav-brand">
-      <div class="c-emoji lg">VN</div>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#hero" class="brand">
+      <svg class="brand-star" viewBox="0 0 24 24" fill="none"><path d="M12 1.5l2.9 6.6 7.2.7-5.4 4.8 1.6 7.1L12 17.1l-6.3 3.6 1.6-7.1L1.9 8.8l7.2-.7L12 1.5z" fill="#FFCD00"/></svg>
       Cộng Đồng Cục Đất Bell Việt Nam
-    </div>
-    <div class="nav-stats">
-      <div>Trạng thái: <span id="serverStatus">Đã kết nối Cloud...</span></div>
-      <div>Hội viên kết nối: <span id="liveCounter">...</span></div>
-    </div>
-  </nav>
-
-  <header>
-    <h1>Đại Lễ Quốc Khánh <span class="c-emoji lg">2/9</span></h1>
-    <p>Hòa chung không khí hào hùng của non sông đất nước, kết nối tài khoản Discord để nhận ngay Role độc quyền, điểm danh ghi danh lời chúc và tham gia chuỗi sự kiện đặc biệt kỷ niệm Ngày Quốc khánh nước CHXHCN Việt Nam.</p>
-  </header>
-
-  <!-- Discord Connect Header Banner -->
-  <div class="discord-banner" id="discordBanner">
-    <div class="discord-info">
-      <h3><div class="c-emoji" style="background: rgba(88,101,242,0.2); border-color: var(--discord-color); color: #8ea1ff;">🔗</div> Liên Kết Discord Để Nhận Role Tự Động</h3>
-      <p id="discordBannerDesc">Chưa liên kết tài khoản Discord. Đăng nhập ngay để nhận Role "Cục Đất Vip 1945" và kích hoạt tính năng chat nhanh!</p>
-    </div>
-    <button class="discord-btn" onclick="openDiscordModal()">
-      <svg width="22" height="17" fill="currentColor" viewBox="0 0 127.14 96.36"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1,105.25,105.25,0,0,0,32.19-16.15c2.62-27.28-4.48-51.2-20.49-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5.18-12.72,11.45-12.72S53.9,46,53.9,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5.18-12.72,11.44-12.72S96.18,46,96.18,53,91,65.69,84.69,65.69Z"/></svg>
-      <span id="discordBtnText">Kết Nối Discord</span>
-    </button>
+    </a>
+    <nav class="main-nav">
+      <a href="#gioi-thieu">Giới thiệu</a>
+      <a href="#thong-tin">Thông tin</a>
+      <a href="#truyen-thong">Truyền thống</a>
+      <a href="#van-hoa">Văn hoá</a>
+      <a href="#tro-choi">Trò chơi</a>
+      <a href="#bang-xep-hang">Bảng xếp hạng</a>
+      <a href="#loi-chuc">Lời chúc</a>
+      <a href="#tro-chuyen">Trò chuyện</a>
+    </nav>
+    <button class="discord-btn" id="discord-connect-btn">Kết nối Discord</button>
   </div>
+</header>
 
+<section id="hero">
+  <canvas id="fireworks-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-date">Ngày 2 tháng 9 năm 2026 — 81 năm Quốc Khánh</div>
+    <h1 class="hero-title">Mừng Quốc Khánh cùng <em>Cộng Đồng Cục Đất Bell Việt Nan</em></h1>
+    <p class="hero-sub">Cộng đồng Cục Đất Bell Việt Nam tổ chức sự kiện trực tuyến chào mừng 81 năm ngày Quốc Khánh — cùng trò chuyện, chơi game, tìm hiểu truyền thống và gửi lời chúc đến mọi người.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" id="hero-discord-btn">Nhận role sự kiện</button>
+      <a href="#tro-choi" class="btn-secondary">Xem trò chơi</a>
+    </div>
+  </div>
+</section>
+
+<section id="gioi-thieu" class="page-section on-cream">
+  <div class="container two-col">
+    <div>
+      <div class="eyebrow-line"><span class="dash"></span>Giới thiệu</div>
+      <h2>Một sự kiện của cộng đồng, cho cộng đồng</h2>
+      <p>Cục Đất Bell Việt Nam là nơi các thành viên cùng nhau trò chuyện, chia sẻ và gắn kết mỗi ngày. Nhân dịp Quốc Khánh 2/9, server tổ chức một trang sự kiện riêng để mọi người cùng ôn lại những trang sử vẻ vang, tham gia trò chơi và gửi những lời chúc ý nghĩa tới đất nước và cộng đồng.</p>
+      <p>Kết nối tài khoản Discord của bạn để nhận role kỷ niệm sự kiện, tham gia bảng xếp hạng trò chơi và trò chuyện trực tiếp với các thành viên khác ngay trên trang này.</p>
+    </div>
+    <div class="info-card">
+      <h3>Cách tham gia</h3>
+      <p class="note">1. Bấm "Kết nối Discord" ở góc trên để nhận role sự kiện.<br>
+      2. Đặt biệt danh để tham gia trò chuyện và bảng xếp hạng.<br>
+      3. Chơi Test Click hoặc Câu đố, điểm số sẽ tự động ghi vào bảng xếp hạng.<br>
+      4. Ghi lại lời chúc của bạn ở cuối trang.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="num">81</div><div class="label">năm Quốc Khánh</div></div>
+        <div class="stat"><div class="num">02/09</div><div class="label">ngày kỷ niệm</div></div>
+        <div class="stat"><div class="num">1945</div><div class="label">năm độc lập</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="thong-tin" class="page-section on-dim">
   <div class="container">
-
-    <div class="col-span-6" style="display: flex; flex-direction: column; gap: 30px;">
-      
-      <div class="card">
-        <h2><div class="c-emoji">📝</div> Sổ Điểm Danh & Ghi Danh Lời Chúc</h2>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5;">
-          Ghi danh lời chúc non sông để lưu lên bảng vinh danh toàn cầu và kích hoạt pháo hoa thời gian thực!
-        </p>
-        <form id="checkinForm">
-          <div class="input-group">
-            <label>Tên định danh / Biệt hiệu hội viên:</label>
-            <input type="text" id="checkinUser" placeholder="Ví dụ: CụcĐấtVip#1945" required autocomplete="off">
-          </div>
-          <div class="input-group">
-            <label>Lời chúc mừng Quốc khánh 2/9:</label>
-            <textarea id="checkinWish" rows="3" placeholder="Gửi gắm tâm tình tự hào tổ quốc..." required></textarea>
-          </div>
-          <button type="submit" class="btn">
-            <div class="c-emoji">🎆</div> Xác Nhận Điểm Danh & Bắn Pháo Hoa
-          </button>
-        </form>
-      </div>
-
-      <div class="card">
-        <h2><div class="c-emoji">💬</div> Kênh Giao Lưu Toàn Cầu (Global Chat)</h2>
-        <div class="stream-box" id="chatStream"></div>
-        <form id="chatForm" style="display: flex; gap: 10px; margin-top: 15px;">
-          <input type="text" id="chatAuthor" placeholder="Tên..." style="width: 30%; margin:0;" required autocomplete="off">
-          <input type="text" id="chatMessage" placeholder="Nhập tin nhắn chung..." style="flex: 1; margin:0;" required autocomplete="off">
-          <button type="submit" class="btn" style="width: 85px; margin:0; padding: 0;">Gửi</button>
-        </form>
-      </div>
-
+    <div class="section-head">
+      <div class="eyebrow-line"><span class="dash"></span>Thông tin</div>
+      <h2>Về Việt Nam</h2>
+      <p>Dữ liệu lấy trực tiếp từ Wikipedia tiếng Việt.</p>
     </div>
-
-    <div class="col-span-6" style="display: flex; flex-direction: column; gap: 30px;">
-
-      <div class="card">
-        <h2><div class="c-emoji">🎮</div> Minigame: Thử Thách Tốc Độ Lễ Hội</h2>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 10px; line-height: 1.5;">
-          Bấm liên tục vào nút bên dưới trong vòng 10 giây để ghi điểm thành tích cá nhân cao nhất!
-        </p>
-        <div class="game-arena">
-          <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Điểm Thành Tích Của Bạn</div>
-          <div class="game-score" id="gameScore">0</div>
-          <div style="font-size: 0.9rem; color: var(--accent-gold);" id="gameTimer">Thời gian: 10s</div>
-          <button class="btn" id="gameActionBtn" style="margin-top: 15px;" onclick="handleGameClick()">
-            <div class="c-emoji">⚡</div> Bấm Ngay Để Ghi Điểm!
-          </button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2><div class="c-emoji">🎁</div> Đặc Quyền Role Discord & Phần Thưởng</h2>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px; line-height: 1.5;">
-          Các thành viên kết nối Discord và hoàn thành điểm danh sẽ nhận được các phần thưởng độc quyền:
-        </p>
-        <div class="perks-grid">
-          <div class="perk-card">
-            <div class="c-emoji lg">👑</div>
-            <h4>Role Đã Tham Gia Sự Kiện/h4>
-            <p>Huy hiệu độc quyền trên server Discord Cộng Đồng Cục Đất Bell Việt Nam</p>
-          </div>
-          <div class="perk-card">
-            <div class="c-emoji lg">⭐</div>
-            <h4>Huy Hiệu 2/9</h4>
-            <p>Tài khoản được gán badge danh dự trên hệ thống bảng xếp hạng.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2><div class="c-emoji">🏆</div> Bảng Vinh Danh Điểm Danh (Cloud Database)</h2>
-        <div class="stream-box" id="leaderboardStream" style="height: 180px;"></div>
-      </div>
-
-    </div>
-
-  </div>
-
-  <!-- Discord Modal Simulation -->
-  <div class="modal-overlay" id="discordModal">
-    <div class="modal-box">
-      <button class="modal-close" onclick="closeDiscordModal()">&times;</button>
-      <div style="font-size: 3rem; margin-bottom: 10px;">🛡️</div>
-      <h3>Xác Thực Tài Khoản Discord</h3>
-      <p>Nhập tên tài khoản Discord của bạn để hệ thống tự động cấp Role sự kiện và đồng bộ kênh chat.</p>
-      <div class="input-group" style="text-align: left;">
-        <label>Tên tài khoản Discord (Username / Tag):</label>
-        <input type="text" id="discordInputUser" placeholder="Ví dụ: cucdatbell#0001" autocomplete="off">
-      </div>
-      <div class="input-group" style="text-align: left;">
-        <label>Chọn phân khu / Chi hội:</label>
-        <select id="discordServerTier">
-          <option value="Chi hội Miền Bắc">Chi hội Miền Bắc</option>
-          <option value="Chi hội Miền Trung">Chi hội Miền Trung</option>
-          <option value="Chi hội Miền Nam">Chi hội Miền Nam</option>
-          <option value="Hải ngoại / Global">Hải ngoại / Global</option>
-        </select>
-      </div>
-      <button class="btn" onclick="submitDiscordConnect()" style="background: var(--discord-color); border-color: #8ea1ff;">
-        Xác Nhận & Cấp Role Tự Động
-      </button>
+    <div id="wiki-info-card" class="info-card">
+      <p class="note">Đang tải thông tin từ Wikipedia...</p>
     </div>
   </div>
+</section>
 
-  <footer>
-    <p>© 2026 Cộng Đồng Cục Đất Bell Việt Nam. MIT License. Free to copy.</p>
-    <p style="font-size: 0.8rem; margin-top: 8px;">Đại Lễ Quốc Khánh 2 Tháng 9 — Tự Hào Non Sông Gấm Vóc Việt Nam</p>
-  </footer>
+<section id="truyen-thong" class="page-section on-cream">
+  <div class="container two-col">
+    <div>
+      <div class="eyebrow-line"><span class="dash"></span>Truyền thống</div>
+      <h2>Không khí ngày Quốc Khánh</h2>
+      <p>Những nét quen thuộc mỗi dịp 2 tháng 9 trên khắp mọi miền đất nước.</p>
+    </div>
+    <div class="tradition-list">
+      <div class="tradition-item">
+        <svg class="mark" viewBox="0 0 44 44" fill="none"><rect width="44" height="44" rx="10" fill="#DA251D"/><path d="M22 12l3 6.5 7.2.8-5.4 4.7 1.6 7-6.4-3.6-6.4 3.6 1.6-7-5.4-4.7 7.2-.8L22 12z" fill="#FFCD00"/></svg>
+        <div><h3>Lễ chào cờ và diễu hành</h3><p>Cờ đỏ sao vàng được treo khắp phố phường, nhiều địa phương tổ chức lễ chào cờ và diễu hành trang trọng tại các quảng trường lớn.</p></div>
+      </div>
+      <div class="tradition-item">
+        <svg class="mark" viewBox="0 0 44 44" fill="none"><rect width="44" height="44" rx="10" fill="#DA251D"/><circle cx="22" cy="22" r="3" fill="#FFCD00"/><path d="M22 6v6M22 32v6M6 22h6M32 22h6M11 11l4 4M29 29l4 4M11 33l4-4M29 15l4-4" stroke="#FFCD00" stroke-width="2" stroke-linecap="round"/></svg>
+        <div><h3>Pháo hoa mừng lễ</h3><p>Buổi tối 2/9, nhiều tỉnh thành bắn pháo hoa mừng ngày lễ lớn, thu hút đông đảo người dân xuống phố xem cùng gia đình, bạn bè.</p></div>
+      </div>
+      <div class="tradition-item">
+        <svg class="mark" viewBox="0 0 44 44" fill="none"><rect width="44" height="44" rx="10" fill="#DA251D"/><path d="M13 26c0-6 4-11 9-11s9 5 9 11" stroke="#FFCD00" stroke-width="2.2" fill="none" stroke-linecap="round"/><rect x="11" y="26" width="22" height="4" rx="2" fill="#FFCD00"/></svg>
+        <div><h3>Sum họp gia đình</h3><p>Đây cũng là dịp nghỉ lễ để các gia đình quây quần, cùng nhau nấu những món ăn truyền thống và ôn lại chuyện xưa.</p></div>
+      </div>
+      <div class="tradition-item">
+        <svg class="mark" viewBox="0 0 44 44" fill="none"><rect width="44" height="44" rx="10" fill="#DA251D"/><path d="M14 30V16l14 7-14 7z" fill="#FFCD00"/></svg>
+        <div><h3>Nhạc và phim tài liệu lịch sử</h3><p>Các bài hát cách mạng, phim tài liệu về ngày Bác Hồ đọc Tuyên ngôn Độc lập được phát lại trên truyền hình và mạng xã hội.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <script>
-    const particlesContainer = document.getElementById('particlesContainer');
-    for (let i = 0; i < 35; i++) {
-      const p = document.createElement('div');
-      p.className = 'particle';
-      const size = Math.random() * 6 + 2;
-      p.style.width = `${size}px`;
-      p.style.height = `${size}px`;
-      p.style.left = `${Math.random() * 100}%`;
-      p.style.animationDuration = `${Math.random() * 10 + 6}s`;
-      p.style.animationDelay = `${Math.random() * 5}s`;
-      particlesContainer.appendChild(p);
+<section id="van-hoa" class="page-section on-dim">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow-line"><span class="dash"></span>Văn hoá</div>
+      <h2>Sắc màu văn hoá Việt Nam</h2>
+      <p>Hình ảnh và mô tả lấy trực tiếp từ Wikipedia.</p>
+    </div>
+    <div id="culture-grid" class="culture-grid"></div>
+  </div>
+</section>
+
+<section id="tro-choi" class="page-section on-cream">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow-line"><span class="dash"></span>Trò chơi</div>
+      <h2>Vui cùng sự kiện</h2>
+      <p>Điểm số của bạn sẽ được ghi vào bảng xếp hạng bên dưới.</p>
+    </div>
+    <div class="game-grid">
+      <div class="game-card">
+        <h3>Test Click</h3>
+        <p class="desc">Bấm càng nhiều càng tốt trong 5 giây.</p>
+        <button class="click-target" id="click-target">
+          <span class="big" id="click-count">0</span>
+          <span class="small" id="click-hint">Bấm để bắt đầu</span>
+        </button>
+        <div class="game-meta"><span id="click-time-left">Thời gian: 5s</span><span id="click-cps"></span></div>
+      </div>
+      <div class="game-card">
+        <h3>Câu đố Quốc Khánh</h3>
+        <p class="desc">8 câu hỏi nhanh về lịch sử và văn hoá Việt Nam.</p>
+        <div class="quiz-box" id="quiz-box">
+          <button class="btn-primary" id="quiz-start-btn" style="align-self:flex-start;">Bắt đầu câu đố</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="bang-xep-hang" class="page-section on-red">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow-line" style="color:var(--gold-soft);"><span class="dash"></span>Bảng xếp hạng</div>
+      <h2>Ai đang dẫn đầu</h2>
+      <p>Cập nhật trực tiếp mỗi khi có điểm số mới.</p>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-game="click-test">Test Click</button>
+      <button class="tab-btn" data-game="quiz">Câu đố</button>
+    </div>
+    <div id="leaderboard-slot"></div>
+  </div>
+</section>
+
+<section id="loi-chuc" class="page-section on-cream">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow-line"><span class="dash"></span>Lời chúc</div>
+      <h2>Gửi lời chúc của bạn</h2>
+      <p>Một lời chúc ngắn gửi đến đất nước và cộng đồng nhân ngày Quốc Khánh.</p>
+    </div>
+    <div class="wish-form">
+      <textarea id="wish-input" rows="3" placeholder="Viết lời chúc của bạn..." maxlength="240"></textarea>
+      <button class="btn-primary" id="wish-submit" style="align-self:flex-start;">Gửi lời chúc</button>
+    </div>
+    <div id="wish-grid" class="wish-grid"></div>
+  </div>
+</section>
+
+<section id="tro-chuyen" class="page-section on-dim">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow-line"><span class="dash"></span>Trò chuyện</div>
+      <h2>Trò chuyện chung</h2>
+      <p>Trò chuyện trực tiếp với các thành viên khác đang ghé thăm trang sự kiện.</p>
+    </div>
+    <div class="chat-wrap">
+      <div class="chat-log" id="chat-log"></div>
+      <div class="chat-input">
+        <input type="text" id="chat-input-field" placeholder="Nhập tin nhắn..." maxlength="300">
+        <button class="send-btn" id="chat-send-btn">Gửi</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="brand">
+        <svg class="brand-star" viewBox="0 0 24 24" fill="none"><path d="M12 1.5l2.9 6.6 7.2.7-5.4 4.8 1.6 7.1L12 17.1l-6.3 3.6 1.6-7.1L1.9 8.8l7.2-.7L12 1.5z" fill="#FFCD00"/></svg>
+        Cục Đất Bell Việt Nam
+      </div>
+      <div class="footer-links">
+        <a href="#gioi-thieu">Giới thiệu</a>
+        <a href="#tro-choi">Trò chơi</a>
+        <a href="#bang-xep-hang">Bảng xếp hạng</a>
+        <a href="#tro-chuyen">Trò chuyện</a>
+      </div>
+    </div>
+    <div class="footer-bottom">Trang sự kiện cộng đồng — Mừng 81 năm Quốc Khánh nước CHXHCN Việt Nam, 2/9/1945 – 2/9/2026.</div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="nickname-modal">
+  <div class="modal-box">
+    <h3>Đặt biệt danh</h3>
+    <p>Biệt danh này sẽ hiển thị khi bạn trò chuyện, gửi lời chúc hoặc chơi game.</p>
+    <input type="text" id="nickname-input" placeholder="Nhập biệt danh của bạn" maxlength="24">
+    <div class="modal-actions">
+      <button class="cancel" id="nickname-cancel">Huỷ</button>
+      <button class="confirm" id="nickname-confirm">Xác nhận</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* =====================================================================
+   ==== CONFIG ====  Điền thông tin của bạn vào đây trước khi dùng.
+   ===================================================================== */
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+const DISCORD_CLIENT_ID = "YOUR_DISCORD_CLIENT_ID";
+const DISCORD_REDIRECT_URI = window.location.origin + window.location.pathname;
+const DISCORD_ROLE_FUNCTION_URL = "YOUR_SUPABASE_PROJECT.functions.supabase.co/discord-role";
+/* ===================================================================== */
+
+const isSupabaseConfigured = SUPABASE_URL && !SUPABASE_URL.includes("YOUR_");
+const isDiscordConfigured = DISCORD_CLIENT_ID && !DISCORD_CLIENT_ID.includes("YOUR_") && DISCORD_ROLE_FUNCTION_URL && !DISCORD_ROLE_FUNCTION_URL.includes("YOUR_");
+
+let supabaseClient = null;
+if (isSupabaseConfigured) {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+/* ---------- config banner ---------- */
+(function renderConfigBanner(){
+  const missing = [];
+  if(!isSupabaseConfigured) missing.push("Supabase (chat, lời chúc, bảng xếp hạng)");
+  if(!isDiscordConfigured) missing.push("Discord OAuth (nhận role)");
+  if(missing.length){
+    const el = document.createElement("div");
+    el.className = "config-banner";
+    el.innerHTML = "<strong>Chưa cấu hình:</strong> " + missing.join(" · ") + " — xem hướng dẫn trong SETUP.md";
+    document.getElementById("config-banner-slot").appendChild(el);
+  }
+})();
+
+/* ---------- toast ---------- */
+let toastTimer = null;
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 3200);
+}
+
+/* ---------- nickname ---------- */
+function getNickname(){ return localStorage.getItem("cd_nickname"); }
+function setNickname(name){ localStorage.setItem("cd_nickname", name); }
+let nicknamePendingCallback = null;
+function ensureNickname(callback){
+  const existing = getNickname();
+  if(existing){ callback(existing); return; }
+  nicknamePendingCallback = callback;
+  document.getElementById("nickname-input").value = "";
+  document.getElementById("nickname-modal").classList.add("open");
+  document.getElementById("nickname-input").focus();
+}
+document.getElementById("nickname-cancel").addEventListener("click", ()=>{
+  document.getElementById("nickname-modal").classList.remove("open");
+  nicknamePendingCallback = null;
+});
+document.getElementById("nickname-confirm").addEventListener("click", ()=>{
+  const val = document.getElementById("nickname-input").value.trim();
+  if(!val){ showToast("Vui lòng nhập biệt danh."); return; }
+  setNickname(val);
+  document.getElementById("nickname-modal").classList.remove("open");
+  if(nicknamePendingCallback){ nicknamePendingCallback(val); nicknamePendingCallback = null; }
+});
+document.getElementById("nickname-input").addEventListener("keydown", (e)=>{
+  if(e.key === "Enter") document.getElementById("nickname-confirm").click();
+});
+
+/* =====================================================================
+   FIREWORKS (hero background animation)
+   ===================================================================== */
+(function initFireworks(){
+  const canvas = document.getElementById("fireworks-canvas");
+  const ctx = canvas.getContext("2d");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function resize(){
+    canvas.width = canvas.offsetWidth * devicePixelRatio;
+    canvas.height = canvas.offsetHeight * devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  if(reduceMotion){
+    // static single burst, no continuous animation
+    drawStaticBurst();
+    return;
+  }
+
+  const colors = ["#FFCD00","#FFE29A","#FFFFFF","#FF8F73"];
+  let particles = [];
+  function spawnFirework(){
+    const w = canvas.offsetWidth, h = canvas.offsetHeight;
+    const x = w*0.15 + Math.random()*w*0.7;
+    const y = h*0.12 + Math.random()*h*0.38;
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    const count = 34 + Math.floor(Math.random()*18);
+    for(let i=0;i<count;i++){
+      const angle = (Math.PI*2*i)/count + Math.random()*0.2;
+      const speed = 0.8 + Math.random()*2.6;
+      particles.push({x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,alpha:1,color});
     }
-
-    let currentUserDiscord = localStorage.getItem('cucdat_discord_user') || null;
-
-    function updateDiscordUI() {
-      if (currentUserDiscord) {
-        document.getElementById('discordBannerDesc').innerHTML = `Đã liên kết thành công với tài khoản: <strong style="color: var(--accent-gold);">${escapeHtml(currentUserDiscord)}</strong>. Role sự kiện đã được kích hoạt!`;
-        document.getElementById('discordBtnText').innerText = "Đã Kết Nối Discord";
-        document.getElementById('checkinUser').value = currentUserDiscord;
-        document.getElementById('chatAuthor').value = currentUserDiscord;
-      }
-    }
-
-    function openDiscordModal() {
-      if (currentUserDiscord) {
-        if (confirm(`Bạn đã kết nối với tài khoản ${currentUserDiscord}. Bạn có muốn hủy liên kết không?`)) {
-          localStorage.removeItem('cucdat_discord_user');
-          currentUserDiscord = null;
-          location.reload();
-        }
-        return;
-      }
-      document.getElementById('discordModal').style.display = 'flex';
-    }
-
-    function closeDiscordModal() {
-      document.getElementById('discordModal').style.display = 'none';
-    }
-
-    function submitDiscordConnect() {
-      const val = document.getElementById('discordInputUser').value.trim();
-      const tier = document.getElementById('discordServerTier').value;
-      if (!val) {
-        alert('Vui lòng nhập tên tài khoản Discord của bạn!');
-        return;
-      }
-      currentUserDiscord = `${val} (${tier})`;
-      localStorage.setItem('cucdat_discord_user', currentUserDiscord);
-      closeDiscordModal();
-      confetti({ particleCount: 200, spread: 130, origin: { y: 0.4 }, colors: ['#5865F2', '#fbbf24', '#ffffff', '#dc2626'] });
-      alert('Kết nối Discord thành công! Hệ thống đã tự động cấp Role "Cục Đất Vip" cho bạn.');
-      updateDiscordUI();
-    }
-
-    async function loadRealCloudData() {
-      try {
-        document.getElementById('serverStatus').innerText = "Đã kết nối Server Thật";
-        let res = await fetch('https://api.npoint.io/cucdatbell2026');
-        if (!res.ok) throw new Error();
-        let data = await res.json();
-        renderData(data);
-      } catch (err) {
-        const defaultData = {
-          counter: 5124,
-          chat: [
-            { author: "Hệ Thống", message: "Chào mừng kết nối thành công tới Server Discord Cục Đất Bell!", time: "Trực tuyến", avatar: "VN" },
-            { author: "CụcĐất_Mod#0001", message: "Chúc toàn thể anh em có một kỳ nghỉ lễ 2/9 thật trọn vẹn!", time: "09:15", avatar: "CD" }
-          ],
-          leaderboard: [
-            { author: "CụcĐất_Admin#1945", wish: "Độc lập - Tự do - Hạnh phúc!", time: "08:30" },
-            { author: "VnGamer#2026", wish: "Tự hào non sông gấm vóc Việt Nam!", time: "08:45" }
-          ]
-        };
-        renderData(defaultData);
-      }
-      updateDiscordUI();
-    }
-
-    function renderData(data) {
-      document.getElementById('liveCounter').innerText = (data.counter || 5124).toLocaleString();
-
-      const chatStream = document.getElementById('chatStream');
-      chatStream.innerHTML = "";
-      (data.chat || []).forEach(item => {
-        const row = document.createElement('div');
-        row.className = 'stream-item';
-        row.innerHTML = `
-          <div class="c-emoji" style="margin: 0; width: 32px; height: 32px; font-size: 0.8rem; border-radius: 50%;">💬</div>
-          <div class="stream-content">
-            <span class="stream-time">${item.time}</span>
-            <span class="author-tag">[${escapeHtml(item.author)}]</span>
-            ${escapeHtml(item.message)}
-          </div>
-        `;
-        chatStream.appendChild(row);
-      });
-      chatStream.scrollTop = chatStream.scrollHeight;
-
-      const leaderboard = document.getElementById('leaderboardStream');
-      leaderboard.innerHTML = "";
-      (data.leaderboard || []).forEach(item => {
-        const row = document.createElement('div');
-        row.className = 'stream-item';
-        row.innerHTML = `
-          <div class="c-emoji" style="margin: 0; width: 32px; height: 32px; font-size: 0.8rem; border-radius: 50%; background: rgba(251,191,36,0.15);">🏆</div>
-          <div class="stream-content">
-            <span class="stream-time">${item.time}</span>
-            <span class="author-tag">${escapeHtml(item.author)}:</span>
-            ${escapeHtml(item.wish)}
-          </div>
-        `;
-        leaderboard.appendChild(row);
-      });
-    }
-
-    document.getElementById('checkinForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const user = document.getElementById('checkinUser').value.trim();
-      const wish = document.getElementById('checkinWish').value.trim();
-      if (!user || !wish) return;
-
-      confetti({ particleCount: 180, spread: 120, origin: { y: 0.5 }, colors: ['#dc2626', '#fbbf24', '#ffffff', '#38bdf8'] });
-
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
-      try {
-        let res = await fetch('https://api.npoint.io/cucdatbell2026');
-        let data = await res.json();
-        
-        data.counter = (data.counter || 5124) + 1;
-        data.leaderboard.unshift({ author: user, wish: wish, time: timeStr });
-        if (data.leaderboard.length > 30) data.leaderboard.pop();
-
-        await fetch('https://api.npoint.io/cucdatbell2026', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-
-        renderData(data);
-        alert('Đã điểm danh và lưu trực tiếp lên Database toàn cầu thành công!');
-        document.getElementById('checkinWish').value = '';
-      } catch (ex) {
-        alert('Đã điểm danh và bắn pháo hoa thành công!');
-        document.getElementById('checkinWish').value = '';
-      }
+  }
+  function tick(){
+    const w = canvas.offsetWidth, h = canvas.offsetHeight;
+    ctx.clearRect(0,0,w,h);
+    particles.forEach(p=>{
+      p.x += p.vx; p.y += p.vy; p.vy += 0.025; p.alpha -= 0.011;
+      ctx.globalAlpha = Math.max(p.alpha,0);
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x,p.y,2.1,0,Math.PI*2); ctx.fill();
     });
+    particles = particles.filter(p=>p.alpha>0);
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(tick);
+  }
+  tick();
+  spawnFirework();
+  setInterval(spawnFirework, 2200);
 
-    document.getElementById('chatForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const author = document.getElementById('chatAuthor').value.trim();
-      const message = document.getElementById('chatMessage').value.trim();
-      if (!author || !message) return;
+  function drawStaticBurst(){
+    const w = canvas.offsetWidth, h = canvas.offsetHeight;
+    ctx.clearRect(0,0,w,h);
+    const cx = w*0.5, cy = h*0.32;
+    for(let i=0;i<28;i++){
+      const angle = (Math.PI*2*i)/28;
+      ctx.strokeStyle = colors[i%colors.length];
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.lineTo(cx+Math.cos(angle)*70, cy+Math.sin(angle)*70);
+      ctx.stroke();
+    }
+  }
+})();
 
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+/* =====================================================================
+   DISCORD OAUTH — nhận role sự kiện
+   ===================================================================== */
+function connectDiscord(){
+  if(!isDiscordConfigured){
+    showToast("Chưa cấu hình Discord OAuth. Xem SETUP.md.");
+    return;
+  }
+  const params = new URLSearchParams({
+    client_id: DISCORD_CLIENT_ID,
+    redirect_uri: DISCORD_REDIRECT_URI,
+    response_type: "code",
+    scope: "identify"
+  });
+  window.location.href = "https://discord.com/api/oauth2/authorize?" + params.toString();
+}
+document.getElementById("discord-connect-btn").addEventListener("click", connectDiscord);
+document.getElementById("hero-discord-btn").addEventListener("click", connectDiscord);
 
-      try {
-        let res = await fetch('https://api.npoint.io/cucdatbell2026');
-        let data = await res.json();
+(function handleDiscordCallback(){
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+  if(!code) return;
+  window.history.replaceState({}, document.title, window.location.pathname);
+  if(!isDiscordConfigured){
+    showToast("Nhận được mã Discord nhưng máy chủ xác thực chưa được cấu hình.");
+    return;
+  }
+  showToast("Đang xác thực với Discord...");
+  fetch("https://" + DISCORD_ROLE_FUNCTION_URL, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ code, redirect_uri: DISCORD_REDIRECT_URI })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data && data.success){
+      showToast("Đã gán role Sự Kiện 2/9/2026 cho " + (data.username || "bạn") + "!");
+      if(data.username && !getNickname()){ setNickname(data.username); }
+    } else {
+      showToast("Không thể gán role: " + (data && data.error ? data.error : "lỗi không xác định"));
+    }
+  })
+  .catch(()=> showToast("Không thể kết nối tới máy chủ xác thực Discord."));
+})();
 
-        data.chat.push({ author: author, message: message, time: timeStr });
-        if (data.chat.length > 30) data.chat.shift();
+/* =====================================================================
+   THÔNG TIN — Wikipedia (Việt Nam)
+   ===================================================================== */
+(async function loadWikiInfo(){
+  const el = document.getElementById("wiki-info-card");
+  try{
+    const res = await fetch("https://vi.wikipedia.org/api/rest_v1/page/summary/Vi%E1%BB%87t_Nam");
+    if(!res.ok) throw new Error("network");
+    const data = await res.json();
+    const extract = data.extract || "Không có dữ liệu.";
+    const thumb = data.thumbnail ? data.thumbnail.source : null;
+    el.innerHTML = `
+      <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;">
+        ${thumb ? `<img src="${thumb}" alt="Việt Nam" style="width:150px;border-radius:10px;flex:none;">` : ""}
+        <div style="flex:1;min-width:220px;">
+          <h3>${data.title || "Việt Nam"}</h3>
+          <p style="color:var(--ink-soft);font-size:0.95rem;">${extract}</p>
+          <p class="note">Nguồn: Wikipedia tiếng Việt</p>
+        </div>
+      </div>`;
+  }catch(e){
+    el.innerHTML = `<p class="note">Không thể tải dữ liệu từ Wikipedia lúc này. Vui lòng thử lại sau.</p>`;
+  }
+})();
 
-        await fetch('https://api.npoint.io/cucdatbell2026', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
+/* =====================================================================
+   VĂN HOÁ — Wikipedia (nhiều chủ đề)
+   ===================================================================== */
+(async function loadCultureGrid(){
+  const topics = ["Áo dài","Bánh chưng","Vịnh Hạ Long","Múa rối nước","Cồng chiêng Tây Nguyên","Tết Nguyên Đán"];
+  const grid = document.getElementById("culture-grid");
+  grid.innerHTML = topics.map(()=>`<div class="culture-card"><div class="skeleton"></div><div class="body"><h3>&nbsp;</h3></div></div>`).join("");
+  const cards = grid.querySelectorAll(".culture-card");
 
-        renderData(data);
-        document.getElementById('chatMessage').value = '';
-      } catch (ex) {
-        const chatStream = document.getElementById('chatStream');
-        const row = document.createElement('div');
-        row.className = 'stream-item';
-        row.innerHTML = `
-          <div class="c-emoji" style="margin: 0; width: 32px; height: 32px; font-size: 0.8rem; border-radius: 50%;">💬</div>
-          <div class="stream-content">
-            <span class="stream-time">${timeStr}</span>
-            <span class="author-tag">[${escapeHtml(author)}]</span>
-            ${escapeHtml(message)}
-          </div>
-        `;
-        chatStream.appendChild(row);
-        chatStream.scrollTop = chatStream.scrollHeight;
-        document.getElementById('chatMessage').value = '';
-      }
-    });
+  await Promise.all(topics.map(async (topic, i)=>{
+    try{
+      const res = await fetch("https://vi.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(topic));
+      if(!res.ok) throw new Error("network");
+      const data = await res.json();
+      const thumb = data.thumbnail ? data.thumbnail.source : null;
+      const extract = (data.extract || "").split(". ").slice(0,2).join(". ");
+      cards[i].innerHTML = `
+        ${thumb ? `<img class="thumb" src="${thumb}" alt="${topic}">` : `<div class="thumb" style="display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:0.85rem;">Không có ảnh</div>`}
+        <div class="body"><h3>${data.title || topic}</h3><p>${extract || "Không có mô tả."}</p></div>`;
+    }catch(e){
+      cards[i].innerHTML = `<div class="thumb" style="display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:0.85rem;">Không tải được</div><div class="body"><h3>${topic}</h3><p>Không thể tải dữ liệu.</p></div>`;
+    }
+  }));
+})();
 
-    let gameScore = 0;
-    let gameActive = false;
-    let timeLeft = 10;
-    let gameInterval = null;
-
-    function handleGameClick() {
-      if (!gameActive) {
-        gameActive = true;
-        gameScore = 1;
-        timeLeft = 10;
-        document.getElementById('gameScore').innerText = gameScore;
-        const btn = document.getElementById('gameActionBtn');
-        btn.innerHTML = `<div class="c-emoji">🔥</div> Bấm Liên Tục Đi!`;
-
-        gameInterval = setInterval(() => {
-          timeLeft--;
-          document.getElementById('gameTimer').innerText = `Thời gian: ${timeLeft}s`;
-          if (timeLeft <= 0) {
-            clearInterval(gameInterval);
-            gameActive = false;
-            btn.innerHTML = `<div class="c-emoji">⚡</div> Chơi Lại Thử Thách`;
-            confetti({ particleCount: 100, spread: 80, origin: { y: 0.7 } });
-            alert(`Kết thúc thử thách! Điểm thành tích của bạn: ${gameScore}`);
-          }
-        }, 1000);
+/* =====================================================================
+   TRÒ CHƠI — Test Click
+   ===================================================================== */
+const clickState = { active:false, count:0, timeLeft:5, timer:null };
+function updateClickUI(){
+  document.getElementById("click-count").textContent = clickState.count;
+  document.getElementById("click-time-left").textContent = clickState.active ? ("Thời gian: " + clickState.timeLeft + "s") : "Thời gian: 5s";
+  document.getElementById("click-hint").textContent = clickState.active ? "Bấm liên tục!" : "Bấm để bắt đầu";
+}
+document.getElementById("click-target").addEventListener("click", ()=>{
+  if(!clickState.active){
+    clickState.active = true; clickState.count = 0; clickState.timeLeft = 5;
+    updateClickUI();
+    clickState.timer = setInterval(()=>{
+      clickState.timeLeft -= 1;
+      if(clickState.timeLeft <= 0){
+        clearInterval(clickState.timer);
+        clickState.active = false;
+        const cps = (clickState.count/5).toFixed(1);
+        document.getElementById("click-cps").textContent = cps + " lần/giây";
+        updateClickUI();
+        ensureNickname((name)=> saveScore("click-test", clickState.count, name));
       } else {
-        gameScore++;
-        document.getElementById('gameScore').innerText = gameScore;
+        updateClickUI();
       }
-    }
+    },1000);
+  } else {
+    clickState.count += 1;
+    updateClickUI();
+  }
+});
 
-    function escapeHtml(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
+/* =====================================================================
+   TRÒ CHƠI — Câu đố
+   ===================================================================== */
+const quizQuestions = [
+  { q:"Ngày Quốc Khánh nước CHXHCN Việt Nam là ngày nào?", options:["2 tháng 9","30 tháng 4","10 tháng 10","19 tháng 8"], correct:0 },
+  { q:"Bản Tuyên ngôn Độc lập năm 1945 được đọc tại đâu?", options:["Quảng trường Ba Đình","Dinh Độc Lập","Văn Miếu","Hồ Gươm"], correct:0 },
+  { q:"Ai là người đọc bản Tuyên ngôn Độc lập ngày 2/9/1945?", options:["Chủ tịch Hồ Chí Minh","Đại tướng Võ Nguyên Giáp","Tôn Đức Thắng","Phạm Văn Đồng"], correct:0 },
+  { q:"Nước Việt Nam Dân chủ Cộng hoà được thành lập vào năm nào?", options:["1945","1954","1975","1930"], correct:0 },
+  { q:"Món bánh truyền thống thường gói vào dịp Tết là gì?", options:["Bánh chưng","Bánh mì","Bánh xèo","Bánh tráng"], correct:0 },
+  { q:"Áo dài là trang phục truyền thống của quốc gia nào?", options:["Việt Nam","Thái Lan","Hàn Quốc","Nhật Bản"], correct:0 },
+  { q:"Vịnh Hạ Long thuộc tỉnh nào của Việt Nam?", options:["Quảng Ninh","Khánh Hoà","Kiên Giang","Thanh Hoá"], correct:0 },
+  { q:"Quốc hoa của Việt Nam là loài hoa nào?", options:["Hoa sen","Hoa đào","Hoa mai","Hoa hồng"], correct:0 }
+];
+let quizIndex = 0, quizScore = 0;
+document.getElementById("quiz-start-btn").addEventListener("click", ()=>{
+  quizIndex = 0; quizScore = 0;
+  renderQuizQuestion();
+});
+function renderQuizQuestion(){
+  const box = document.getElementById("quiz-box");
+  const item = quizQuestions[quizIndex];
+  box.innerHTML = `
+    <div class="quiz-progress">Câu ${quizIndex+1} / ${quizQuestions.length}</div>
+    <div class="quiz-question">${item.q}</div>
+    <div class="quiz-options">
+      ${item.options.map((opt,i)=>`<button class="quiz-option" data-idx="${i}">${opt}</button>`).join("")}
+    </div>`;
+  box.querySelectorAll(".quiz-option").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const idx = parseInt(btn.getAttribute("data-idx"));
+      const opts = box.querySelectorAll(".quiz-option");
+      opts.forEach(o=>o.setAttribute("disabled","true"));
+      if(idx === item.correct){
+        btn.classList.add("correct");
+        quizScore++;
+      } else {
+        btn.classList.add("wrong");
+        opts[item.correct].classList.add("correct");
+      }
+      setTimeout(()=>{
+        quizIndex++;
+        if(quizIndex < quizQuestions.length){ renderQuizQuestion(); }
+        else { finishQuiz(); }
+      }, 900);
+    });
+  });
+}
+function finishQuiz(){
+  const box = document.getElementById("quiz-box");
+  box.innerHTML = `
+    <div class="quiz-result">
+      <div class="score">${quizScore} / ${quizQuestions.length}</div>
+      <p class="note">câu trả lời đúng</p>
+      <button class="btn-primary" id="quiz-retry-btn">Chơi lại</button>
+    </div>`;
+  document.getElementById("quiz-retry-btn").addEventListener("click", ()=>{
+    quizIndex = 0; quizScore = 0; renderQuizQuestion();
+  });
+  ensureNickname((name)=> saveScore("quiz", quizScore, name));
+}
 
-    loadRealCloudData();
-  </script>
+/* =====================================================================
+   BẢNG XẾP HẠNG (Supabase: game_scores)
+   ===================================================================== */
+async function saveScore(game, score, username){
+  if(!isSupabaseConfigured){ showToast("Chưa cấu hình Supabase — không thể lưu điểm."); return; }
+  try{
+    await supabaseClient.from("game_scores").insert({ username, game, score });
+    showToast("Đã lưu điểm số của bạn vào bảng xếp hạng.");
+    loadLeaderboard(currentLeaderboardGame);
+  }catch(e){
+    showToast("Không thể lưu điểm số.");
+  }
+}
+let currentLeaderboardGame = "click-test";
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    currentLeaderboardGame = btn.getAttribute("data-game");
+    loadLeaderboard(currentLeaderboardGame);
+  });
+});
+async function loadLeaderboard(game){
+  const slot = document.getElementById("leaderboard-slot");
+  if(!isSupabaseConfigured){
+    slot.innerHTML = `<div class="empty-note">Chưa cấu hình Supabase, bảng xếp hạng chưa hoạt động.</div>`;
+    return;
+  }
+  slot.innerHTML = `<div class="empty-note">Đang tải...</div>`;
+  try{
+    const { data, error } = await supabaseClient
+      .from("game_scores")
+      .select("username,score,created_at")
+      .eq("game", game)
+      .order("score", { ascending:false })
+      .limit(10);
+    if(error) throw error;
+    if(!data || data.length === 0){
+      slot.innerHTML = `<div class="empty-note">Chưa có điểm số nào cho trò chơi này.</div>`;
+      return;
+    }
+    slot.innerHTML = `
+      <table class="leaderboard">
+        <thead><tr><th>#</th><th>Người chơi</th><th>Điểm</th></tr></thead>
+        <tbody>
+          ${data.map((row,i)=>`<tr><td class="rank">${i+1}</td><td>${escapeHtml(row.username||"Ẩn danh")}</td><td>${row.score}</td></tr>`).join("")}
+        </tbody>
+      </table>`;
+  }catch(e){
+    slot.innerHTML = `<div class="empty-note">Không thể tải bảng xếp hạng lúc này.</div>`;
+  }
+}
+if(isSupabaseConfigured){
+  loadLeaderboard(currentLeaderboardGame);
+  supabaseClient.channel("game_scores-changes")
+    .on("postgres_changes", { event:"INSERT", schema:"public", table:"game_scores" }, ()=>{ loadLeaderboard(currentLeaderboardGame); })
+    .subscribe();
+} else {
+  loadLeaderboard(currentLeaderboardGame);
+}
+
+/* =====================================================================
+   LỜI CHÚC (Supabase: wishes)
+   ===================================================================== */
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+}
+function renderWish(row){
+  const el = document.createElement("div");
+  el.className = "wish-card";
+  el.innerHTML = `<div class="name">${escapeHtml(row.username || "Ẩn danh")}</div><div class="content">${escapeHtml(row.content)}</div>`;
+  return el;
+}
+async function loadWishes(){
+  const grid = document.getElementById("wish-grid");
+  if(!isSupabaseConfigured){
+    grid.innerHTML = `<div class="empty-note">Chưa cấu hình Supabase, tính năng lời chúc chưa hoạt động.</div>`;
+    return;
+  }
+  try{
+    const { data, error } = await supabaseClient.from("wishes").select("*").order("created_at", { ascending:false }).limit(60);
+    if(error) throw error;
+    grid.innerHTML = "";
+    if(!data || data.length === 0){
+      grid.innerHTML = `<div class="empty-note">Chưa có lời chúc nào. Hãy là người đầu tiên.</div>`;
+      return;
+    }
+    data.forEach(row=> grid.appendChild(renderWish(row)));
+  }catch(e){
+    grid.innerHTML = `<div class="empty-note">Không thể tải lời chúc lúc này.</div>`;
+  }
+}
+document.getElementById("wish-submit").addEventListener("click", ()=>{
+  const input = document.getElementById("wish-input");
+  const content = input.value.trim();
+  if(!content){ showToast("Vui lòng nhập lời chúc."); return; }
+  if(!isSupabaseConfigured){ showToast("Chưa cấu hình Supabase — không thể gửi lời chúc."); return; }
+  ensureNickname(async (name)=>{
+    try{
+      await supabaseClient.from("wishes").insert({ username:name, content });
+      input.value = "";
+      showToast("Đã gửi lời chúc của bạn.");
+    }catch(e){
+      showToast("Không thể gửi lời chúc.");
+    }
+  });
+});
+if(isSupabaseConfigured){
+  loadWishes();
+  supabaseClient.channel("wishes-changes")
+    .on("postgres_changes", { event:"INSERT", schema:"public", table:"wishes" }, (payload)=>{
+      const grid = document.getElementById("wish-grid");
+      const emptyNote = grid.querySelector(".empty-note");
+      if(emptyNote) emptyNote.remove();
+      grid.prepend(renderWish(payload.new));
+    })
+    .subscribe();
+} else {
+  loadWishes();
+}
+
+/* =====================================================================
+   TRÒ CHUYỆN CHUNG (Supabase: chat_messages)
+   ===================================================================== */
+function renderChatMessage(row){
+  const log = document.getElementById("chat-log");
+  const mine = row.username === getNickname();
+  const el = document.createElement("div");
+  el.className = "chat-msg" + (mine ? " mine" : "");
+  el.innerHTML = `<div class="who">${escapeHtml(row.username || "Ẩn danh")}</div><div class="bubble">${escapeHtml(row.content)}</div>`;
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+}
+async function loadChat(){
+  const log = document.getElementById("chat-log");
+  if(!isSupabaseConfigured){
+    log.innerHTML = `<div class="empty-note">Chưa cấu hình Supabase, trò chuyện chưa hoạt động.</div>`;
+    return;
+  }
+  try{
+    const { data, error } = await supabaseClient.from("chat_messages").select("*").order("created_at", { ascending:true }).limit(50);
+    if(error) throw error;
+    log.innerHTML = "";
+    (data||[]).forEach(renderChatMessage);
+  }catch(e){
+    log.innerHTML = `<div class="empty-note">Không thể tải tin nhắn lúc này.</div>`;
+  }
+}
+function sendChat(){
+  const field = document.getElementById("chat-input-field");
+  const content = field.value.trim();
+  if(!content) return;
+  if(!isSupabaseConfigured){ showToast("Chưa cấu hình Supabase — không thể gửi tin nhắn."); return; }
+  ensureNickname(async (name)=>{
+    try{
+      await supabaseClient.from("chat_messages").insert({ username:name, content });
+      field.value = "";
+    }catch(e){
+      showToast("Không thể gửi tin nhắn.");
+    }
+  });
+}
+document.getElementById("chat-send-btn").addEventListener("click", sendChat);
+document.getElementById("chat-input-field").addEventListener("keydown", (e)=>{
+  if(e.key === "Enter") sendChat();
+});
+if(isSupabaseConfigured){
+  loadChat();
+  supabaseClient.channel("chat_messages-changes")
+    .on("postgres_changes", { event:"INSERT", schema:"public", table:"chat_messages" }, (payload)=> renderChatMessage(payload.new))
+    .subscribe();
+} else {
+  loadChat();
+}
+</script>
 </body>
 </html>
