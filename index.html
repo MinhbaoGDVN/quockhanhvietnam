@@ -859,20 +859,32 @@ async function loadLeaderboard(game){
   try{
     const { data, error } = await supabaseClient
       .from("game_scores")
-      .select("username,score,created_at")
-      .eq("game", game)
-      .order("score", { ascending:false })
-      .limit(10);
+      .select("username,score")
+      .eq("game", game);
+      
     if(error) throw error;
     if(!data || data.length === 0){
       slot.innerHTML = `<div class="empty-note">Chưa có điểm số nào cho trò chơi này.</div>`;
       return;
     }
+
+    const scoreMap = new Map();
+    data.forEach(row => {
+      const name = row.username || "Ẩn danh";
+      const currentScore = scoreMap.get(name) || 0;
+      scoreMap.set(name, currentScore + row.score);
+    });
+
+    const aggregatedData = Array.from(scoreMap.entries())
+      .map(([username, score]) => ({ username, score }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10)
+
     slot.innerHTML = `
       <table class="leaderboard">
         <thead><tr><th>#</th><th>Người chơi</th><th>Điểm</th></tr></thead>
         <tbody>
-          ${data.map((row,i)=>`<tr><td class="rank">${i+1}</td><td>${escapeHtml(row.username||"Ẩn danh")}</td><td>${row.score}</td></tr>`).join("")}
+          ${aggregatedData.map((row,i)=>`<tr><td class="rank">${i+1}</td><td>${escapeHtml(row.username)}</td><td>${row.score}</td></tr>`).join("")}
         </tbody>
       </table>`;
   }catch(e){
