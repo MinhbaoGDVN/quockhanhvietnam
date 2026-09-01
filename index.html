@@ -1,33 +1,4 @@
 <!DOCTYPE html>
-<!--
-  =====================================================================
-  CỤC ĐẤT BELL VIỆT NAM — SỰ KIỆN QUỐC KHÁNH 2/9/2026
-  =====================================================================
-  TRƯỚC KHI ĐƯA TRANG WEB NÀY LÊN, ADMIN CẦN ĐIỀN CẤU HÌNH BÊN DƯỚI
-  (tìm dòng "==== CONFIG ====" trong phần <script> ở cuối file):
-
-    1. SUPABASE_URL, SUPABASE_ANON_KEY
-       - Tạo project miễn phí tại https://supabase.com
-       - Vào SQL Editor, chạy file "supabase-schema.sql" (đi kèm) để tạo
-         3 bảng: chat_messages, wishes, game_scores
-       - Vào Project Settings > API để lấy URL và anon key
-
-    2. DISCORD_CLIENT_ID, DISCORD_REDIRECT_URI
-       - Tạo ứng dụng tại https://discord.com/developers/applications
-       - Trong OAuth2 > Redirects, thêm đúng URL trang web của bạn
-         (ví dụ: https://cucdatbell.com/index.html)
-
-    3. DISCORD_ROLE_FUNCTION_URL
-       - Deploy Edge Function "discord-role" (file đi kèm
-         "discord-role-function.ts") lên Supabase
-       - Function này giữ Bot Token + Client Secret một cách an toàn,
-         KHÔNG bao giờ được đặt các secret đó trong file HTML này
-       - Xem chi tiết từng bước trong "SETUP.md" đi kèm
-
-  Nếu chưa cấu hình, các khu vực liên quan sẽ tự hiển thị thông báo
-  "chưa cấu hình" thay vì báo lỗi hay giả vờ hoạt động.
-  =====================================================================
--->
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -541,16 +512,13 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* =====================================================================
-   ==== CONFIG ====  Điền thông tin của bạn vào đây trước khi dùng.
-   ===================================================================== */
-const SUPABASE_URL = "https://ivggswmckdfavmkofmse.supabase.co";
+//================== Config ======================
+ const SUPABASE_URL = "https://ivggswmckdfavmkofmse.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_YBG1I0TL1b-j6x5aNqJXEw_LQk_F6Ty";
 
 const DISCORD_CLIENT_ID = "1544174093891272764";
 const DISCORD_REDIRECT_URI = window.location.origin + window.location.pathname;
 const DISCORD_ROLE_FUNCTION_URL = "ivggswmckdfavmkofmse.supabase.co/functions/v1/discord-role";
-/* ===================================================================== */
 
 const isSupabaseConfigured = SUPABASE_URL && !SUPABASE_URL.includes("YOUR_");
 const isDiscordConfigured = DISCORD_CLIENT_ID && !DISCORD_CLIENT_ID.includes("YOUR_") && DISCORD_ROLE_FUNCTION_URL && !DISCORD_ROLE_FUNCTION_URL.includes("YOUR_") && isSupabaseConfigured;
@@ -728,9 +696,8 @@ document.getElementById("hero-discord-btn").addEventListener("click", connectDis
   .catch(()=> showToast("Không thể kết nối tới máy chủ xác thực Discord."));
 })();
 
-/* =====================================================================
-   THÔNG TIN — Wikipedia (Việt Nam)
-   ===================================================================== */
+// ======================= Thông Tin =============================
+             
 (async function loadWikiInfo(){
   const el = document.getElementById("wiki-info-card");
   try{
@@ -753,9 +720,7 @@ document.getElementById("hero-discord-btn").addEventListener("click", connectDis
   }
 })();
 
-/* =====================================================================
-   VĂN HOÁ — Wikipedia (nhiều chủ đề)
-   ===================================================================== */
+// ======================= Văn Hoá =============================
 (async function loadCultureGrid(){
   const topics = ["Áo dài","Bánh chưng","Vịnh Hạ Long","Múa rối nước","Cồng chiêng Tây Nguyên","Tết Nguyên Đán"];
   const grid = document.getElementById("culture-grid");
@@ -810,9 +775,7 @@ document.getElementById("click-target").addEventListener("click", ()=>{
   }
 });
 
-/* =====================================================================
-   TRÒ CHƠI — Câu đố
-   ===================================================================== */
+// ======================= Câu hỏi =============================
 const quizQuestions = [
   { q:"Ngày Quốc Khánh nước CHXHCN Việt Nam là ngày nào?", options:["2 tháng 9","30 tháng 4","10 tháng 10","19 tháng 8"], correct:0 },
   { q:"Bản Tuyên ngôn Độc lập năm 1945 được đọc tại đâu?", options:["Quảng trường Ba Đình","Dinh Độc Lập","Văn Miếu","Hồ Gươm"], correct:0 },
@@ -871,9 +834,7 @@ function finishQuiz(){
   ensureNickname((name)=> saveScore("quiz", quizScore, name));
 }
 
-/* =====================================================================
-   BẢNG XẾP HẠNG (Supabase: game_scores)
-   ===================================================================== */
+// ======================= BXH =============================
 async function saveScore(game, score, username){
   if(!isSupabaseConfigured){ showToast("Chưa cấu hình Supabase — không thể lưu điểm."); return; }
   try{
@@ -932,9 +893,7 @@ if(isSupabaseConfigured){
   loadLeaderboard(currentLeaderboardGame);
 }
 
-/* =====================================================================
-   LỜI CHÚC (Supabase: wishes)
-   ===================================================================== */
+// ======================= Lời chúc =============================
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
 }
@@ -992,9 +951,7 @@ if(isSupabaseConfigured){
   loadWishes();
 }
 
-/* =====================================================================
-   TRÒ CHUYỆN CHUNG (Supabase: chat_messages)
-   ===================================================================== */
+// ======================= Chat =============================
 function renderChatMessage(row){
   const log = document.getElementById("chat-log");
   const mine = row.username === getNickname();
