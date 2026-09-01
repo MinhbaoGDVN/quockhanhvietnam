@@ -202,6 +202,7 @@
   table.leaderboard th,table.leaderboard td{padding:13px 18px;text-align:left;font-size:0.94rem;}
   table.leaderboard thead th{background:var(--red-deep);color:var(--cream);font-weight:700;}
   table.leaderboard tbody tr:nth-child(odd){background:var(--cream-dim);}
+  table.leaderboard td{color: var(--ink);}
   table.leaderboard td.rank{font-weight:800;color:var(--red-deep);width:50px;}
   .empty-note{color:var(--ink-soft);font-size:0.92rem;padding:18px;background:var(--cream-dim);border-radius:var(--radius-s);}
 
@@ -536,7 +537,7 @@ if (isSupabaseConfigured) {
   if(missing.length){
     const el = document.createElement("div");
     el.className = "config-banner";
-    el.innerHTML = "<strong>Chưa cấu hình:</strong> " + missing.join(" · ") + " — xem hướng dẫn trong SETUP.md";
+    el.innerHTML = "<strong>Chưa cấu hình:</strong> " + missing.join(" · ") + ".";
     document.getElementById("config-banner-slot").appendChild(el);
   }
 })();
@@ -578,9 +579,7 @@ document.getElementById("nickname-input").addEventListener("keydown", (e)=>{
   if(e.key === "Enter") document.getElementById("nickname-confirm").click();
 });
 
-/* =====================================================================
-   FIREWORKS (hero background animation)
-   ===================================================================== */
+// ======================= Pháo hoa =============================
 (function initFireworks(){
   const canvas = document.getElementById("fireworks-canvas");
   const ctx = canvas.getContext("2d");
@@ -646,12 +645,10 @@ document.getElementById("nickname-input").addEventListener("keydown", (e)=>{
   }
 })();
 
-/* =====================================================================
-   DISCORD OAUTH — nhận role sự kiện
-   ===================================================================== */
+// ======================= Role =============================
 function connectDiscord(){
   if(!isDiscordConfigured){
-    showToast("Chưa cấu hình Discord OAuth. Xem SETUP.md.");
+    showToast("Chưa cấu hình Discord OAuth.");
     return;
   }
   const params = new URLSearchParams({
