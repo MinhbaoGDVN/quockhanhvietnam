@@ -719,7 +719,7 @@ document.getElementById("hero-discord-btn").addEventListener("click", connectDis
 
 // ======================= Văn Hoá =============================
 (async function loadCultureGrid(){
-  const topics = ["Áo dài","Bánh chưng","Vịnh Hạ Long","Múa rối nước","Cồng Chiêng","Tết Nguyên Đán"];
+  const topics = ["Áo dài","Bánh chưng","Vịnh Hạ Long","Múa rối nước","Cồng chiêng","Tết Nguyên Đán"];
   const grid = document.getElementById("culture-grid");
   grid.innerHTML = topics.map(()=>`<div class="culture-card"><div class="skeleton"></div><div class="body"><h3>&nbsp;</h3></div></div>`).join("");
   const cards = grid.querySelectorAll(".culture-card");
