@@ -593,7 +593,6 @@ document.getElementById("nickname-input").addEventListener("keydown", (e)=>{
   window.addEventListener("resize", resize);
 
   if(reduceMotion){
-    // static single burst, no continuous animation
     drawStaticBurst();
     return;
   }
@@ -647,51 +646,12 @@ document.getElementById("nickname-input").addEventListener("keydown", (e)=>{
 
 // ======================= Role =============================
 function connectDiscord(){
-  if(!isDiscordConfigured){
-    showToast("Chưa cấu hình Discord OAuth.");
-    return;
-  }
-  const params = new URLSearchParams({
-    client_id: DISCORD_CLIENT_ID,
-    redirect_uri: DISCORD_REDIRECT_URI,
-    response_type: "code",
-    scope: "identify"
-  });
-  window.location.href = "https://discord.com/api/oauth2/authorize?" + params.toString();
+  showToast("WEBSITE ARCHIVED");
 }
-document.getElementById("discord-connect-btn").addEventListener("click", connectDiscord);
-document.getElementById("hero-discord-btn").addEventListener("click", connectDiscord);
 
 (function handleDiscordCallback(){
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get("code");
-  if(!code) return;
-  window.history.replaceState({}, document.title, window.location.pathname);
-  if(!isDiscordConfigured){
-    showToast("Nhận được mã Discord nhưng máy chủ xác thực chưa được cấu hình.");
-    return;
-  }
-  showToast("Đang xác thực với Discord...");
-  fetch("https://" + DISCORD_ROLE_FUNCTION_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type":"application/json",
-      "Authorization": "Bearer " + SUPABASE_ANON_KEY,
-      "apikey": SUPABASE_ANON_KEY
-    },
-    body: JSON.stringify({ code, redirect_uri: DISCORD_REDIRECT_URI })
-  })
-  .then(r=>r.json())
-  .then(data=>{
-    if(data && data.success){
-      showToast("Đã gán role Sự Kiện 2/9/2026 cho " + (data.username || "bạn") + "!");
-      if(data.username && !getNickname()){ setNickname(data.username); }
-    } else {
-      showToast("Không thể gán role: " + (data && data.error ? data.error : "lỗi không xác định"));
-    }
-  })
-  .catch(()=> showToast("Không thể kết nối tới máy chủ xác thực Discord."));
-})();
+  showToast("WEBSITE ARCHIVED");
+}
 
 // ======================= Thông Tin =============================
              
@@ -741,104 +701,21 @@ document.getElementById("hero-discord-btn").addEventListener("click", connectDis
 })();
 
 // ======================= Testclick =============================
-const clickState = { active:false, count:0, timeLeft:5, timer:null };
 function updateClickUI(){
-  document.getElementById("click-count").textContent = clickState.count;
-  document.getElementById("click-time-left").textContent = clickState.active ? ("Thời gian: " + clickState.timeLeft + "s") : "Thời gian: 5s";
-  document.getElementById("click-hint").textContent = clickState.active ? "Bấm liên tục!" : "Bấm để bắt đầu";
-}
-document.getElementById("click-target").addEventListener("click", ()=>{
-  if(!clickState.active){
-    clickState.active = true; clickState.count = 0; clickState.timeLeft = 5;
-    updateClickUI();
-    clickState.timer = setInterval(()=>{
-      clickState.timeLeft -= 1;
-      if(clickState.timeLeft <= 0){
-        clearInterval(clickState.timer);
-        clickState.active = false;
-        const cps = (clickState.count/5).toFixed(1);
-        document.getElementById("click-cps").textContent = cps + " lần/giây";
-        updateClickUI();
-        ensureNickname((name)=> saveScore("click-test", clickState.count, name));
-      } else {
-        updateClickUI();
-      }
-    },1000);
-  } else {
-    clickState.count += 1;
-    updateClickUI();
-  }
+  showToast("WEBSITE ARCHIVED");
 });
 
 // ======================= Câu hỏi =============================
-const quizQuestions = [
-  { q:"Ngày Quốc Khánh nước CHXHCN Việt Nam là ngày nào?", options:["30 tháng 4","2 tháng 9","10 tháng 10","19 tháng 8"], correct:1 },
-  { q:"Bản Tuyên ngôn Độc lập năm 1945 được đọc tại đâu?", options:["Văn Miếu","Dinh Độc Lập","Quảng trường Ba Đình","Hồ Gươm"], correct:2 },
-  { q:"Ai là người đọc bản Tuyên ngôn Độc lập ngày 2/9/1945?", options:["Phạm Văn Đồng","Đại tướng Võ Nguyên Giáp","Tôn Đức Thắng","Chủ tịch Hồ Chí Minh"], correct:3 },
-  { q:"Nước Việt Nam Dân chủ Cộng hoà được thành lập vào năm nào?", options:["1954","1945","1975","1930"], correct:1 },
-  { q:"Món bánh truyền thống thường gói vào dịp Tết là gì?", options:["Bánh xèo","Bánh mì","Bánh chưng","Bánh tráng"], correct:2 },
-  { q:"Áo dài là trang phục truyền thống của quốc gia nào?", options:["Việt Nam","Thái Lan","Hàn Quốc","Nhật Bản"], correct:0 },
-  { q:"Vịnh Hạ Long thuộc tỉnh nào của Việt Nam?", options:["Thanh Hoá","Khánh Hoà","Kiên Giang","Quảng Ninh"], correct:3 },
-  { q:"Quốc hoa của Việt Nam là loài hoa nào?", options:["Hoa sen","Hoa đào","Hoa mai","Hoa hồng"], correct:0 }
-];
-let quizIndex = 0, quizScore = 0;
-document.getElementById("quiz-start-btn").addEventListener("click", ()=>{
-  quizIndex = 0; quizScore = 0;
-  renderQuizQuestion();
-});
 function renderQuizQuestion(){
-  const box = document.getElementById("quiz-box");
-  const item = quizQuestions[quizIndex];
-  box.innerHTML = `
-    <div class="quiz-progress">Câu ${quizIndex+1} / ${quizQuestions.length}</div>
-    <div class="quiz-question">${item.q}</div>
-    <div class="quiz-options">
-      ${item.options.map((opt,i)=>`<button class="quiz-option" data-idx="${i}">${opt}</button>`).join("")}
-    </div>`;
-  box.querySelectorAll(".quiz-option").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const idx = parseInt(btn.getAttribute("data-idx"));
-      const opts = box.querySelectorAll(".quiz-option");
-      opts.forEach(o=>o.setAttribute("disabled","true"));
-      if(idx === item.correct){
-        btn.classList.add("correct");
-        quizScore++;
-      } else {
-        btn.classList.add("wrong");
-        opts[item.correct].classList.add("correct");
-      }
-      setTimeout(()=>{
-        quizIndex++;
-        if(quizIndex < quizQuestions.length){ renderQuizQuestion(); }
-        else { finishQuiz(); }
-      }, 900);
-    });
-  });
+  showToast("WEBSITE ARCHIVED");
 }
 function finishQuiz(){
-  const box = document.getElementById("quiz-box");
-  box.innerHTML = `
-    <div class="quiz-result">
-      <div class="score">${quizScore} / ${quizQuestions.length}</div>
-      <p class="note">câu trả lời đúng</p>
-      <button class="btn-primary" id="quiz-retry-btn">Chơi lại</button>
-    </div>`;
-  document.getElementById("quiz-retry-btn").addEventListener("click", ()=>{
-    quizIndex = 0; quizScore = 0; renderQuizQuestion();
-  });
-  ensureNickname((name)=> saveScore("quiz", quizScore, name));
+  showToast("WEBSITE ARCHIVED");
 }
 
 // ======================= BXH =============================
 async function saveScore(game, score, username){
-  if(!isSupabaseConfigured){ showToast("Chưa cấu hình Supabase — không thể lưu điểm."); return; }
-  try{
-    await supabaseClient.from("game_scores").insert({ username, game, score });
-    showToast("Đã lưu điểm số của bạn vào bảng xếp hạng.");
-    loadLeaderboard(currentLeaderboardGame);
-  }catch(e){
-    showToast("Không thể lưu điểm số.");
-  }
+  showToast("WEBSITE ARCHIVED");
 }
 let currentLeaderboardGame = "click-test";
 document.querySelectorAll(".tab-btn").forEach(btn=>{
@@ -929,34 +806,10 @@ async function loadWishes(){
     grid.innerHTML = `<div class="empty-note">Không thể tải lời chúc lúc này.</div>`;
   }
 }
+  
 document.getElementById("wish-submit").addEventListener("click", ()=>{
-  const input = document.getElementById("wish-input");
-  const content = input.value.trim();
-  if(!content){ showToast("Vui lòng nhập lời chúc."); return; }
-  if(!isSupabaseConfigured){ showToast("Chưa cấu hình Supabase — không thể gửi lời chúc."); return; }
-  ensureNickname(async (name)=>{
-    try{
-      await supabaseClient.from("wishes").insert({ username:name, content });
-      input.value = "";
-      showToast("Đã gửi lời chúc của bạn.");
-    }catch(e){
-      showToast("Không thể gửi lời chúc.");
-    }
-  });
+  showToast("WEBSITE ARCHIVED");
 });
-if(isSupabaseConfigured){
-  loadWishes();
-  supabaseClient.channel("wishes-changes")
-    .on("postgres_changes", { event:"INSERT", schema:"public", table:"wishes" }, (payload)=>{
-      const grid = document.getElementById("wish-grid");
-      const emptyNote = grid.querySelector(".empty-note");
-      if(emptyNote) emptyNote.remove();
-      grid.prepend(renderWish(payload.new));
-    })
-    .subscribe();
-} else {
-  loadWishes();
-}
 
 // ======================= Chat =============================
 function renderChatMessage(row){
@@ -984,30 +837,7 @@ async function loadChat(){
   }
 }
 function sendChat(){
-  const field = document.getElementById("chat-input-field");
-  const content = field.value.trim();
-  if(!content) return;
-  if(!isSupabaseConfigured){ showToast("Chưa cấu hình Supabase — không thể gửi tin nhắn."); return; }
-  ensureNickname(async (name)=>{
-    try{
-      await supabaseClient.from("chat_messages").insert({ username:name, content });
-      field.value = "";
-    }catch(e){
-      showToast("Không thể gửi tin nhắn.");
-    }
-  });
-}
-document.getElementById("chat-send-btn").addEventListener("click", sendChat);
-document.getElementById("chat-input-field").addEventListener("keydown", (e)=>{
-  if(e.key === "Enter") sendChat();
-});
-if(isSupabaseConfigured){
-  loadChat();
-  supabaseClient.channel("chat_messages-changes")
-    .on("postgres_changes", { event:"INSERT", schema:"public", table:"chat_messages" }, (payload)=> renderChatMessage(payload.new))
-    .subscribe();
-} else {
-  loadChat();
+  showToast("WEBSITE ARCHIVED");
 }
 </script>
 </body>
